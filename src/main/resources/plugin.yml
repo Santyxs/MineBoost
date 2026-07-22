@@ -1,0 +1,39 @@
+name: MineBoost
+version: ${project.version}
+description: MineBoost is a plugin that allows players to break multiple blocks with a single action. Each tool has a specific area of effect and can have a cooldown between uses.
+authors:
+  - Santysx
+api-version: 1.21
+main: mbt.xenova.MineBoost
+
+commands:
+  mineboost:
+    description: Main command for MineBoost plugin.
+    usage: /mineboost <give|reload|help>
+    aliases: [mb]
+
+permissions:
+  mineboost.give:
+    description: Allows using /mineboost give
+    default: op
+  mineboost.reload:
+    description: Allows using /mineboost reload
+    default: op
+  mineboost.tier.wood:
+    description: Allows having x2 wooden tools
+    default: true
+  mineboost.tier.stone:
+    description: Allows having x2 stone tools
+    default: true
+  mineboost.tier.iron:
+    description: Allows having x2 iron tools
+    default: true
+  mineboost.tier.gold:
+    description: Allows having x2 golden tools
+    default: true
+  mineboost.tier.diamond:
+    description: Allows having x2 diamond tools
+    default: true
+  mineboost.tier.netherite:
+    description: Allows having x2 netherite tools
+    default: op

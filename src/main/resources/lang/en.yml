@@ -1,0 +1,60 @@
+command:
+  no-permission: "&cYou don't have permission to use this command."
+  reload-success: "&aMineBoost configuration reloaded. &7(Tools already given out keep their previous description, but their mining area uses the new value immediately)"
+  usage: "&eUsage: /mineboost give <pickaxe|shovel|axe> <wood|stone|iron|gold|diamond|netherite> [player]"
+  invalid-tool: "&cInvalid tool. Use: pickaxe, shovel or axe."
+  invalid-material: "&cInvalid material. Use: wood, stone, iron, gold, diamond or netherite."
+  player-not-found: "&cPlayer not found: %player%"
+  console-must-specify-player: "&cYou must specify a player from the console."
+  target-no-permission: "&c%player% doesn't have permission to hold %tier% tools (%permission%)."
+  received: "&aYou received: &r%tool%"
+  given-to: "&a%tool% given to %player%"
+  help:
+    header: "&6&lMineBoost &7- Available commands:"
+
+mine:
+  cooldown: "&6⏳ x2 bonus on cooldown: %seconds%s"
+  no-permission: "&c✖ You need the matching rank for the x2 bonus of %tier%."
+
+recipe:
+  no-permission: "&c✖ You don't have permission to craft %tier% tools."
+
+toggle:
+  enabled: "&a✔ x2 Mode &lENABLED"
+  disabled: "&c✖ x2 Mode &lDISABLED"
+
+family:
+  pickaxe:
+    label: "Pickaxe"
+    action: "swing"
+    blocks: "Stone, ores, brick, concrete"
+  shovel:
+    label: "Shovel"
+    action: "dig"
+    blocks: "Dirt, sand, gravel, snow, clay"
+  axe:
+    label: "Axe"
+    action: "chop"
+    blocks: "Logs, wood, planks"
+
+tier:
+  wood: "Wood"
+  stone: "Stone"
+  iron: "Iron"
+  gold: "Gold"
+  diamond: "Diamond"
+  netherite: "Netherite"
+
+tool:
+  displayname: "%tier% %family% x2"
+  lore:
+    area: "Breaks an area of &f%size%x%size%&7 (%blocks% blocks)"
+    action: "of the same type in a single %action%."
+    cooldown: "Cooldown: &f%seconds%s&7 between bonus uses."
+    compatible: "Compatible with:"
+    speed: "Speed:"
+    durability: "Durability:"
+    mode-on: "&a● x2 Mode: ENABLED"
+    mode-off: "&c● x2 Mode: DISABLED"
+    toggle-hint: "&8&o(Sneak + right-click to toggle)"
+    epic: "&6&o★ Epic Tool"

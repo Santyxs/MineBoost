@@ -1,0 +1,60 @@
+command:
+  no-permission: "&cVocê não tem permissão para usar este comando."
+  reload-success: "&aConfiguração do MineBoost recarregada. &7(As ferramentas já entregues mantêm a descrição anterior, mas a área de mineração usa o novo valor imediatamente)"
+  usage: "&eUso: /mineboost give <picareta|pá|machado> <madeira|pedra|ferro|ouro|diamante|netherite> [jogador]"
+  invalid-tool: "&cFerramenta inválida. Use: picareta, pá ou machado."
+  invalid-material: "&cMaterial inválido. Use: madeira, pedra, ferro, ouro, diamante ou netherite."
+  player-not-found: "&cJogador não encontrado: %player%"
+  console-must-specify-player: "&cVocê deve especificar um jogador a partir do console."
+  target-no-permission: "&c%player% não tem permissão para ferramentas de %tier% (%permission%)."
+  received: "&aVocê recebeu: &r%tool%"
+  given-to: "&a%tool% entregue a %player%"
+  help:
+    header: "&6&lMineBoost &7- Comandos disponíveis:"
+
+mine:
+  cooldown: "&6⏳ Bônus x2 em cooldown: %seconds%s"
+  no-permission: "&c✖ Você precisa da patente correspondente para o bônus x2 de %tier%."
+
+recipe:
+  no-permission: "&c✖ Você não tem permissão para criar ferramentas de %tier%."
+
+toggle:
+  enabled: "&a✔ Modo x2 &lATIVADO"
+  disabled: "&c✖ Modo x2 &lDESATIVADO"
+
+family:
+  pickaxe:
+    label: "Picareta"
+    action: "picada"
+    blocks: "Pedra, minérios, tijolo, concreto"
+  shovel:
+    label: "Pá"
+    action: "cavada"
+    blocks: "Terra, areia, cascalho, neve, argila"
+  axe:
+    label: "Machado"
+    action: "machadada"
+    blocks: "Toras, madeira, tábuas"
+
+tier:
+  wood: "Madeira"
+  stone: "Pedra"
+  iron: "Ferro"
+  gold: "Ouro"
+  diamond: "Diamante"
+  netherite: "Netherite"
+
+tool:
+  displayname: "%tier% %family% x2"
+  lore:
+    area: "Quebra uma área de &f%size%x%size%&7 (%blocks% blocos)"
+    action: "do mesmo tipo em uma única %action%."
+    cooldown: "Cooldown: &f%seconds%s&7 entre usos do bônus."
+    compatible: "Compatível com:"
+    speed: "Velocidade:"
+    durability: "Durabilidade:"
+    mode-on: "&a● Modo x2: ATIVADO"
+    mode-off: "&c● Modo x2: DESATIVADO"
+    toggle-hint: "&8&o(Agache + clique direito para alternar)"
+    epic: "&6&o★ Ferramenta Épica"

@@ -1,6 +1,6 @@
-package mbt.xenova.mineboost.managers;
+package mbt.xenova.managers;
 
-import mbt.xenova.mineboost.MineBoost;
+import mbt.xenova.MineBoost;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;

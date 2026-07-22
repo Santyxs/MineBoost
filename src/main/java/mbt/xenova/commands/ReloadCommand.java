@@ -1,7 +1,7 @@
-package mbt.xenova.mineboost.commands;
+package mbt.xenova.commands;
 
-import mbt.xenova.mineboost.MineBoost;
-import mbt.xenova.mineboost.managers.RecipeManager;
+import mbt.xenova.MineBoost;
+import mbt.xenova.managers.RecipeManager;
 import org.bukkit.command.CommandSender;
 
 public class ReloadCommand {

@@ -1,7 +1,7 @@
-package mbt.xenova.mineboost;
+package mbt.xenova;
 
-import mbt.xenova.mineboost.commands.*;
-import mbt.xenova.mineboost.managers.*;
+import mbt.xenova.commands.*;
+import mbt.xenova.managers.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

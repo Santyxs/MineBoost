@@ -1,7 +1,7 @@
-package mbt.xenova.mineboost.commands;
+package mbt.xenova.commands;
 
-import mbt.xenova.mineboost.MineBoost;
-import mbt.xenova.mineboost.managers.ToolManager;
+import mbt.xenova.MineBoost;
+import mbt.xenova.managers.ToolManager;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;

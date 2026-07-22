@@ -1,6 +1,6 @@
-package mbt.xenova.mineboost.commands;
+package mbt.xenova.commands;
 
-import mbt.xenova.mineboost.MineBoost;
+import mbt.xenova.MineBoost;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;

@@ -5,6 +5,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
@@ -12,7 +18,11 @@ import org.bukkit.inventory.ShapedRecipe;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecipeManager {
+public class RecipeManager implements Listener {
+
+    // ---------------------------------------------------------------
+    // REGISTRATION
+    // ---------------------------------------------------------------
 
     public static void registerAll() {
         unregisterAll();
@@ -72,5 +82,30 @@ public class RecipeManager {
     private static NamespacedKey buildKey(ToolManager.ToolFamily family, ToolManager.ToolTier tier) {
         return new NamespacedKey(MineBoost.getInstance(),
                 "tool_" + family.name().toLowerCase() + "_" + tier.name().toLowerCase());
+    }
+
+    // ---------------------------------------------------------------
+    // LISTENER
+    // ---------------------------------------------------------------
+
+    @EventHandler
+    public void onCraft(CraftItemEvent event) {
+        ItemStack result = event.getRecipe().getResult();
+        if (!ToolManager.isMultiTool(result)) return;
+
+        HumanEntity crafter = event.getWhoClicked();
+        if (!(crafter instanceof Player player)) return;
+
+        ToolManager.ToolTier tier = ToolManager.getTier(result);
+        if (!player.hasPermission(tier.getPermission())) {
+            event.setCancelled(true);
+            player.sendMessage(MineBoost.getInstance()
+                    .getMessage("recipe.no-permission", java.util.Map.of("tier", tier.getLabel())));
+        }
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        event.getPlayer().discoverRecipes(getAllKeys());
     }
 }

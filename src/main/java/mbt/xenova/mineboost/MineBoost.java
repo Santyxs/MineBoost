@@ -1,8 +1,12 @@
 package mbt.xenova.mineboost;
 
-import mbt.xenova.mineboost.managers.RecipeManager;
-import mbt.xenova.mineboost.managers.ToolManager;
+import mbt.xenova.mineboost.commands.*;
+import mbt.xenova.mineboost.managers.*;
 import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,6 +16,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +30,7 @@ public class MineBoost extends JavaPlugin {
     // ---------------------------------------------------------------
 
     private static final String[] BUNDLED_LANGS = {"en", "es", "pt"};
-    private static final String FALLBACK_LANG = "es";
+    private static final String FALLBACK_LANG = "en";
 
     private FileConfiguration messages;
     private FileConfiguration fallbackMessages;
@@ -35,9 +41,7 @@ public class MineBoost extends JavaPlugin {
     // ---------------------------------------------------------------
 
     private static final int MIN_SIZE = 3;
-
     private static final int ABSOLUTE_MAX_SIZE = 31;
-
     private static final int DEFAULT_MAX_SIZE = 11;
 
     public void onEnable() {
@@ -46,22 +50,20 @@ public class MineBoost extends JavaPlugin {
         saveDefaultConfig();
         reloadLanguage();
 
-        getServer().getPluginManager().registerEvents(new MineListener(), this);
-        getServer().getPluginManager().registerEvents(new ToggleListener(), this);
-        getServer().getPluginManager().registerEvents(new RecipeListener(), this);
+        getServer().getPluginManager().registerEvents(new RecipeManager(), this);
 
         RecipeManager.registerAll();
 
-        MineBoostCommandHandler commandHandler = new MineBoostCommandHandler();
+        CommandHandler commandHandler = new CommandHandler();
         getCommand("mineboost").setExecutor(commandHandler);
         getCommand("mineboost").setTabCompleter(commandHandler);
 
-        getLogger().info("MineBoost activado. Herramientas x2 listas.");
+        getLogger().info("MineBoost enabled.");
     }
 
     public void onDisable() {
         RecipeManager.unregisterAll();
-        getLogger().info("MineBoost desactivado.");
+        getLogger().info("MineBoost disabled.");
     }
 
     public static MineBoost getInstance() {
@@ -190,5 +192,50 @@ public class MineBoost extends JavaPlugin {
             }
         }
         return false;
+    }
+
+    // ---------------------------------------------------------------
+    // COMMAND HANDLER
+    // ---------------------------------------------------------------
+
+    private static class CommandHandler implements CommandExecutor, TabCompleter {
+
+        private final GiveCommand giveCommand = new GiveCommand();
+        private final ReloadCommand reloadCommand = new ReloadCommand();
+        private final HelpCommand helpCommand = new HelpCommand();
+
+        public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+            if (args.length == 0) {
+                helpCommand.execute(sender, args);
+                return true;
+            }
+
+            String[] rest = Arrays.copyOfRange(args, 1, args.length);
+
+            switch (args[0].toLowerCase()) {
+                case "give" -> giveCommand.execute(sender, rest);
+                case "reload" -> reloadCommand.execute(sender, rest);
+                case "help" -> helpCommand.execute(sender, rest);
+                default -> helpCommand.execute(sender, args);
+            }
+            return true;
+        }
+
+        public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+            List<String> completions = new ArrayList<>();
+
+            if (args.length == 1) {
+                for (String name : List.of("give", "reload", "help")) {
+                    if (name.startsWith(args[0].toLowerCase())) completions.add(name);
+                }
+                return completions;
+            }
+
+            String[] rest = Arrays.copyOfRange(args, 1, args.length);
+            return switch (args[0].toLowerCase()) {
+                case "give" -> giveCommand.tabComplete(sender, rest);
+                default -> completions;
+            };
+        }
     }
 }

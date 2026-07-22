@@ -1,0 +1,86 @@
+###############################################
+#              MINEBOOST SUPPORT               #
+#---------------------------------------------#
+# Discord:  https://discord.gg/E2hAAa7F6q     #
+###############################################
+
+config-version: 1
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━ #
+#       CORE SETTINGS      #
+# ━━━━━━━━━━━━━━━━━━━━━━━━ #
+
+# Prefix for the custom messages
+prefix: "&8[&6MineBoost&8] &r"
+
+# Language for messages (en, es, pt, rus, cn)
+language: en
+
+# Enable or disable update checking
+check-updates: true
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━ #
+#       TOOLS SETTINGS     #
+# ━━━━━━━━━━━━━━━━━━━━━━━━ #
+
+#
+# Area size each tool breaks based on its material (tier).
+# The number is the side length of the square: 3 = 3x3 area (9 blocks), 5 = 5x5 area (25 blocks), etc.
+# Must be an ODD number (3, 5, 7...) so the original block is at the center.
+# If you set an even number, the plugin automatically rounds it to the nearest odd number.
+#
+area-sizes:
+  WOOD: 3
+  STONE: 3
+  IRON: 3
+  GOLD: 3
+  DIAMOND: 5
+  NETHERITE: 5
+
+# Maximum allowed cap for the values above, regardless of what you set them to.
+# - Default (11) is safe for any server: with multiple players and other plugins.
+# - If your server is small (1-2 players most of the time) and only runs MineBoost, you can raise it
+#   quite a bit without issue, because the bottleneck (a single main thread tick)
+#   has much more free room.
+# - No matter what, the plugin NEVER allows more than 31 (absolute limit in the code),
+#   so that an accidentally huge value cannot crash the server. Beyond that,
+#   the cost starts to depend more on chain updates (light, redstone, sand/water physics)
+#   and network traffic to clients than on hardware power itself.
+max-area-size: 11
+
+# ===================================================
+# Cooldown between uses of the bonus
+# ===================================================
+#
+# Seconds to wait between one bonus activation and the next,
+# per player and per material (tier). While on cooldown, the tool
+# breaks a single block, like a normal one.
+#
+# 0 = no cooldown (default). Useful for PvP or economy servers where
+# you want to prevent someone from clearing an entire area in one go without limit.
+#
+cooldown-seconds:
+  WOOD: 0
+  STONE: 0
+  IRON: 0
+  GOLD: 0
+  DIAMOND: 0
+  NETHERITE: 0
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━ #
+#      WORLDS SETTINGS     #
+# ━━━━━━━━━━━━━━━━━━━━━━━━ #
+
+# ===================================================
+# Worlds where the bonus does NOT work
+# ===================================================
+#
+# In these worlds, tools behave like normal tools
+# (break 1 block only), even if the player is holding them. Useful for
+# spawn, lobbies, minigames, or any world where you don't want the bonus.
+#
+# Use the EXACT name of the world folder (the same one you see on the server,
+# e.g. "world", "world_nether", "world_the_end", or your minigame name).
+#
+disabled-worlds:
+  - world_the_end

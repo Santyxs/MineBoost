@@ -1,0 +1,11 @@
+mbt\xenova\mineboost\MineBoost$CommandHandler.class
+mbt\xenova\mineboost\managers\RecipeManager$1.class
+mbt\xenova\mineboost\commands\GiveCommand.class
+mbt\xenova\mineboost\commands\ReloadCommand.class
+mbt\xenova\mineboost\MineBoost.class
+mbt\xenova\mineboost\managers\ToolManager.class
+mbt\xenova\mineboost\commands\HelpCommand.class
+mbt\xenova\mineboost\managers\ToolManager$ToolTier.class
+mbt\xenova\mineboost\commands\HelpCommand$CommandEntry.class
+mbt\xenova\mineboost\managers\RecipeManager.class
+mbt\xenova\mineboost\managers\ToolManager$ToolFamily.class

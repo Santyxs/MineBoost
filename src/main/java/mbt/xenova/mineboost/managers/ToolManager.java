@@ -1,9 +1,11 @@
 package mbt.xenova.mineboost.managers;
 
 import mbt.xenova.mineboost.MineBoost;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -73,23 +75,27 @@ public class ToolManager implements Listener {
     }
 
     public enum ToolTier {
-        WOOD("WOODEN", ChatColor.WHITE, 0, 0),
-        STONE("STONE", ChatColor.GRAY, 1, 1),
-        IRON("IRON", ChatColor.WHITE, 2, 2),
-        GOLD("GOLDEN", ChatColor.GOLD, 4, 1),
-        DIAMOND("DIAMOND", ChatColor.AQUA, 3, 3),
-        NETHERITE("NETHERITE", ChatColor.DARK_PURPLE, 3, 3);
+        WOOD("WOODEN", NamedTextColor.WHITE, 0, 0),
+        STONE("STONE", NamedTextColor.GRAY, 1, 1),
+        IRON("IRON", NamedTextColor.WHITE, 2, 2),
+        GOLD("GOLDEN", NamedTextColor.GOLD, 4, 1),
+        DIAMOND("DIAMOND", NamedTextColor.AQUA, 3, 3),
+        NETHERITE("NETHERITE", NamedTextColor.DARK_PURPLE, 3, 3);
 
         private final String materialPrefix;
-        private final ChatColor color;
+        private final NamedTextColor color;
         private final int efficiencyLevel;
         private final int unbreakingLevel;
 
-        ToolTier(String materialPrefix, ChatColor color, int efficiencyLevel, int unbreakingLevel) {
+        ToolTier(String materialPrefix, NamedTextColor color, int efficiencyLevel, int unbreakingLevel) {
             this.materialPrefix = materialPrefix;
             this.color = color;
             this.efficiencyLevel = efficiencyLevel;
             this.unbreakingLevel = unbreakingLevel;
+        }
+
+        public NamedTextColor getColor() {
+            return color;
         }
 
         public String getPermission() {
@@ -110,10 +116,11 @@ public class ToolManager implements Listener {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
 
-        String displayName = MineBoost.getInstance().getRawMessage("tool.displayname",
-                java.util.Map.of("tier", tier.getLabel(), "family", family.getLabel()));
-        meta.setDisplayName(tier.color + "" + ChatColor.BOLD + displayName);
-        meta.setLore(buildLore(family, tier));
+        String displayName = MineBoost.getInstance().getRawMessage("tool.displayname", java.util.Map.of("tier", tier.getLabel(), "family", family.getLabel()));
+
+        meta.displayName(Component.text(displayName, tier.getColor(), TextDecoration.BOLD));
+
+        meta.lore(buildLore(family, tier));
 
         if (tier.efficiencyLevel > 0) {
             meta.addEnchant(Enchantment.EFFICIENCY, tier.efficiencyLevel, true);
@@ -135,56 +142,90 @@ public class ToolManager implements Listener {
         return item;
     }
 
-    private static List<String> buildLore(ToolFamily family, ToolTier tier) {
+    private static List<Component> buildLore(ToolFamily family, ToolTier tier) {
         return buildLore(family, tier, true);
     }
 
-    private static List<String> buildLore(ToolFamily family, ToolTier tier, boolean enabled) {
+    private static List<Component> buildLore(ToolFamily family, ToolTier tier, boolean enabled) {
         MineBoost plugin = MineBoost.getInstance();
         int areaSize = plugin.getAreaSize(tier);
         int totalBlocks = areaSize * areaSize;
 
-        List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.DARK_GRAY + "✦ " + tier.getLabel() + " · " + family.getLabel());
-        lore.add("");
-        lore.add(ChatColor.GRAY + plugin.getRawMessage("tool.lore.area", java.util.Map.of(
-                "size", String.valueOf(areaSize), "blocks", String.valueOf(totalBlocks))));
-        lore.add(ChatColor.GRAY + plugin.getRawMessage("tool.lore.action", java.util.Map.of("action", family.getActionWord())));
+        List<Component> lore = new ArrayList<>();
+
+        lore.add(Component.text()
+                .color(NamedTextColor.DARK_GRAY)
+                .append(Component.text("✦ "))
+                .append(Component.text(tier.getLabel(), tier.getColor()))
+                .append(Component.text(" · "))
+                .append(Component.text(family.getLabel(), NamedTextColor.WHITE))
+                .build());
+
+        lore.add(Component.empty());
+
+        lore.add(Component.text(plugin.getRawMessage("tool.lore.area", java.util.Map.of(
+                        "size", String.valueOf(areaSize), "blocks", String.valueOf(totalBlocks))),
+                NamedTextColor.GRAY));
+
+        // Acción
+        lore.add(Component.text(plugin.getRawMessage("tool.lore.action", java.util.Map.of("action", family.getActionWord())),
+                NamedTextColor.GRAY));
+
+        // Cooldown (si aplica)
         int cooldownSeconds = plugin.getCooldownSeconds(tier);
         if (cooldownSeconds > 0) {
-            lore.add(ChatColor.GRAY + plugin.getRawMessage("tool.lore.cooldown",
-                    java.util.Map.of("seconds", String.valueOf(cooldownSeconds))));
+            lore.add(Component.text(plugin.getRawMessage("tool.lore.cooldown",
+                    java.util.Map.of("seconds", String.valueOf(cooldownSeconds))), NamedTextColor.GRAY));
         }
-        lore.add("");
-        lore.add(ChatColor.DARK_GRAY + plugin.getRawMessage("tool.lore.compatible", null));
-        lore.add(ChatColor.GRAY + family.getBlockSummary());
-        lore.add("");
-        lore.add(ChatColor.DARK_GRAY + plugin.getRawMessage("tool.lore.speed", null) + " " + statBar(tier.efficiencyLevel, 4, ChatColor.YELLOW));
-        lore.add(ChatColor.DARK_GRAY + plugin.getRawMessage("tool.lore.durability", null) + " " + statBar(tier.unbreakingLevel, 3, ChatColor.GREEN));
-        lore.add("");
-        lore.add(plugin.getRawMessage(enabled ? "tool.lore.mode-on" : "tool.lore.mode-off", null));
-        lore.add(plugin.getRawMessage("tool.lore.toggle-hint", null));
-        lore.add("");
-        lore.add(plugin.getRawMessage("tool.lore.epic", null));
-        lore.add(ChatColor.DARK_PURPLE + "" + ChatColor.ITALIC + "MineBoost");
+
+        lore.add(Component.empty());
+        lore.add(Component.text(plugin.getRawMessage("tool.lore.compatible", null), NamedTextColor.DARK_GRAY));
+        lore.add(Component.text(family.getBlockSummary(), NamedTextColor.GRAY));
+        lore.add(Component.empty());
+        lore.add(Component.text()
+                .color(NamedTextColor.DARK_GRAY)
+                .append(Component.text(plugin.getRawMessage("tool.lore.speed", null) + " "))
+                .append(statBar(tier.efficiencyLevel, 4, NamedTextColor.YELLOW))
+                .build());
+
+        lore.add(Component.text()
+                .color(NamedTextColor.DARK_GRAY)
+                .append(Component.text(plugin.getRawMessage("tool.lore.durability", null) + " "))
+                .append(statBar(tier.unbreakingLevel, 3, NamedTextColor.GREEN))
+                .build());
+
+        lore.add(Component.empty());
+
+        // Estado (activado/desactivado) y pista
+        lore.add(LegacyComponentSerializer.legacySection()
+                .deserialize(plugin.getRawMessage(enabled ? "tool.lore.mode-on" : "tool.lore.mode-off", null)));
+        lore.add(LegacyComponentSerializer.legacySection()
+                .deserialize(plugin.getRawMessage("tool.lore.toggle-hint", null)));
+
+        lore.add(Component.empty());
+
+        lore.add(LegacyComponentSerializer.legacySection()
+                .deserialize(plugin.getRawMessage("tool.lore.epic", null)));
+        lore.add(Component.text("MineBoost", NamedTextColor.DARK_PURPLE, TextDecoration.ITALIC));
+
         return lore;
     }
 
-    private static String statBar(int level, int max, ChatColor color) {
-        StringBuilder bar = new StringBuilder();
+    private static Component statBar(int level, int max, NamedTextColor color) {
+        net.kyori.adventure.text.TextComponent.@org.jetbrains.annotations.NotNull Builder builder = Component.text();
         for (int i = 1; i <= max; i++) {
-            bar.append(i <= level ? color : ChatColor.DARK_GRAY).append("★");
+            builder.append(Component.text("★", i <= level ? color : NamedTextColor.DARK_GRAY));
         }
-        return bar.toString();
+        return builder.build();
     }
 
     public static boolean isMultiTool(ItemStack item) {
-        if (item == null || !item.hasItemMeta()) return false;
-        return item.getItemMeta().getPersistentDataContainer().has(getFamilyKey(), PersistentDataType.STRING);
+        if (item == null || !item.hasItemMeta()) return true;
+        return !item.getItemMeta().getPersistentDataContainer().has(getFamilyKey(), PersistentDataType.STRING);
     }
 
     public static ToolFamily getFamily(ItemStack item) {
-        if (!isMultiTool(item)) return null;
+        if (isMultiTool(item)) return null;
         String name = item.getItemMeta().getPersistentDataContainer().get(getFamilyKey(), PersistentDataType.STRING);
         try {
             return ToolFamily.valueOf(name);
@@ -194,7 +235,7 @@ public class ToolManager implements Listener {
     }
 
     public static ToolTier getTier(ItemStack item) {
-        if (!isMultiTool(item)) return null;
+        if (isMultiTool(item)) return null;
         String name = item.getItemMeta().getPersistentDataContainer().get(getTierKey(), PersistentDataType.STRING);
         try {
             return ToolTier.valueOf(name);
@@ -204,18 +245,22 @@ public class ToolManager implements Listener {
     }
 
     public static boolean isEnabled(ItemStack item) {
-        if (!isMultiTool(item)) return false;
+        if (isMultiTool(item)) return true;
         Byte value = item.getItemMeta().getPersistentDataContainer().get(getEnabledKey(), PersistentDataType.BYTE);
-        return value == null || value == (byte) 1;
+        return value != null && value != (byte) 1;
     }
 
     public static boolean toggleEnabled(ItemStack item) {
         ToolFamily family = getFamily(item);
         ToolTier tier = getTier(item);
-        boolean newState = !isEnabled(item);
+        if (family == null || tier == null) {
+            return false;
+        }
+
+        boolean newState = isEnabled(item);
 
         ItemMeta meta = item.getItemMeta();
-        meta.setLore(buildLore(family, tier, newState));
+        meta.lore(buildLore(family, tier, newState));
         meta.getPersistentDataContainer().set(getEnabledKey(), PersistentDataType.BYTE, (byte) (newState ? 1 : 0));
         item.setItemMeta(meta);
 
@@ -250,13 +295,16 @@ public class ToolManager implements Listener {
         Player player = event.getPlayer();
         ItemStack tool = player.getInventory().getItemInMainHand();
 
-        if (!isMultiTool(tool)) return;
+        if (isMultiTool(tool)) return;
 
         ToolFamily family = getFamily(tool);
         ToolTier tier = getTier(tool);
+
+        if (family == null || tier == null) return;
+
         Block origin = event.getBlock();
 
-        if (!isEnabled(tool)) return;
+        if (isEnabled(tool)) return;
 
         if (!player.hasPermission(tier.getPermission())) {
             notifyNoPermission(player, tier);
@@ -298,16 +346,14 @@ public class ToolManager implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
-
         if (event.getHand() != EquipmentSlot.HAND) return;
-
         if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
         Player player = event.getPlayer();
         if (!player.isSneaking()) return;
 
         ItemStack item = event.getItem();
-        if (!isMultiTool(item)) return;
+        if (isMultiTool(item)) return;
 
         event.setCancelled(true);
 
@@ -315,10 +361,10 @@ public class ToolManager implements Listener {
         MineBoost plugin = MineBoost.getInstance();
 
         if (nowEnabled) {
-            player.sendMessage(plugin.getMessage("toggle.enabled"));
+            player.sendMessage(LegacyComponentSerializer.legacySection().deserialize(plugin.getMessage("toggle.enabled")));
             player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING, 0.7f, 1.4f);
         } else {
-            player.sendMessage(plugin.getMessage("toggle.disabled"));
+            player.sendMessage(LegacyComponentSerializer.legacySection().deserialize(plugin.getMessage("toggle.disabled")));
             player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING, 0.7f, 0.8f);
         }
     }
@@ -351,8 +397,7 @@ public class ToolManager implements Listener {
         if (last != null && now - last < NOTICE_COOLDOWN_MS) return;
         lastNoPermissionNotice.put(player.getUniqueId(), now);
 
-        String message = MineBoost.getInstance()
-                .getMessage("mine.no-permission", java.util.Map.of("tier", tier.getLabel()));
+        String message = MineBoost.getInstance().getMessage("mine.no-permission", java.util.Map.of("tier", tier.getLabel()));
         player.sendActionBar(LegacyComponentSerializer.legacySection().deserialize(message));
     }
 
@@ -377,10 +422,11 @@ public class ToolManager implements Listener {
     }
 
     private void damageTool(Player player, ItemStack tool, int extraBlocksBroken) {
-        if (!(tool.getItemMeta() instanceof Damageable)) return;
+        if (!(tool.getItemMeta() instanceof Damageable meta)) {
+            return;
+        }
 
         int unbreakingLevel = tool.getEnchantmentLevel(Enchantment.UNBREAKING);
-        Damageable meta = (Damageable) tool.getItemMeta();
 
         int damageToApply = 0;
         for (int i = 0; i < extraBlocksBroken; i++) {
@@ -399,7 +445,7 @@ public class ToolManager implements Listener {
             player.getWorld().playSound(player.getLocation(), org.bukkit.Sound.ENTITY_ITEM_BREAK, 1f, 1f);
         } else {
             meta.setDamage(newDamage);
-            tool.setItemMeta((ItemMeta) meta);
+            tool.setItemMeta(meta);
         }
     }
 }

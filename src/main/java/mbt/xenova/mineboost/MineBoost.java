@@ -2,7 +2,6 @@ package mbt.xenova.mineboost;
 
 import mbt.xenova.mineboost.commands.*;
 import mbt.xenova.mineboost.managers.*;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -10,16 +9,14 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jspecify.annotations.NonNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MineBoost extends JavaPlugin {
 
@@ -55,8 +52,8 @@ public class MineBoost extends JavaPlugin {
         RecipeManager.registerAll();
 
         CommandHandler commandHandler = new CommandHandler();
-        getCommand("mineboost").setExecutor(commandHandler);
-        getCommand("mineboost").setTabCompleter(commandHandler);
+        Objects.requireNonNull(getCommand("mineboost")).setExecutor(commandHandler);
+        Objects.requireNonNull(getCommand("mineboost")).setTabCompleter(commandHandler);
 
         getLogger().info("MineBoost enabled.");
     }
@@ -98,7 +95,12 @@ public class MineBoost extends JavaPlugin {
         InputStream in = getResource(resourcePath);
         if (in == null) return;
 
-        file.getParentFile().mkdirs();
+        File parent = file.getParentFile();
+        if (!parent.mkdirs() && !parent.isDirectory()) {
+            getLogger().warning("Could not create directory: " + parent.getAbsolutePath());
+            return;
+        }
+
         try {
             YamlConfiguration cfg = YamlConfiguration.loadConfiguration(
                     new InputStreamReader(in, StandardCharsets.UTF_8));
@@ -127,7 +129,7 @@ public class MineBoost extends JavaPlugin {
             }
         }
 
-        return ChatColor.translateAlternateColorCodes('&', raw);
+        return raw.replace('&', '§');
     }
 
     public String getRawMessage(String key, Map<String, String> placeholders) {
@@ -142,13 +144,15 @@ public class MineBoost extends JavaPlugin {
             }
         }
 
-        return ChatColor.translateAlternateColorCodes('&', raw);
+        return raw.replace('&', '§');
     }
 
+    @SuppressWarnings("unused")
     public String getCurrentLang() {
         return currentLang;
     }
 
+    @SuppressWarnings("unused")
     public String[] getAvailableLangs() {
         return BUNDLED_LANGS.clone();
     }
@@ -204,24 +208,25 @@ public class MineBoost extends JavaPlugin {
         private final ReloadCommand reloadCommand = new ReloadCommand();
         private final HelpCommand helpCommand = new HelpCommand();
 
-        public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        public boolean onCommand(@NonNull CommandSender sender, @NonNull Command command,
+                                 @NonNull String label, String[] args) {
             if (args.length == 0) {
-                helpCommand.execute(sender, args);
+                helpCommand.execute(sender);
                 return true;
             }
 
             String[] rest = Arrays.copyOfRange(args, 1, args.length);
 
             switch (args[0].toLowerCase()) {
-                case "give" -> giveCommand.execute(sender, rest);
-                case "reload" -> reloadCommand.execute(sender, rest);
-                case "help" -> helpCommand.execute(sender, rest);
-                default -> helpCommand.execute(sender, args);
+                case "give"   -> giveCommand.execute(sender, rest);
+                case "reload" -> reloadCommand.execute(sender);
+                default       -> helpCommand.execute(sender);
             }
             return true;
         }
 
-        public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        public List<String> onTabComplete(@NonNull CommandSender sender, @NonNull Command command,
+                                          @NonNull String alias, String[] args) {
             List<String> completions = new ArrayList<>();
 
             if (args.length == 1) {
@@ -232,10 +237,10 @@ public class MineBoost extends JavaPlugin {
             }
 
             String[] rest = Arrays.copyOfRange(args, 1, args.length);
-            return switch (args[0].toLowerCase()) {
-                case "give" -> giveCommand.tabComplete(sender, rest);
-                default -> completions;
-            };
+            if ("give".equalsIgnoreCase(args[0])) {
+                return giveCommand.tabComplete(rest);
+            }
+            return completions;
         }
     }
 }

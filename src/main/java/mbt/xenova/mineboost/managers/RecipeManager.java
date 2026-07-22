@@ -91,13 +91,13 @@ public class RecipeManager implements Listener {
     @EventHandler
     public void onCraft(CraftItemEvent event) {
         ItemStack result = event.getRecipe().getResult();
-        if (!ToolManager.isMultiTool(result)) return;
+        if (ToolManager.isMultiTool(result)) return;
 
         HumanEntity crafter = event.getWhoClicked();
         if (!(crafter instanceof Player player)) return;
 
         ToolManager.ToolTier tier = ToolManager.getTier(result);
-        if (!player.hasPermission(tier.getPermission())) {
+        if (tier != null && !player.hasPermission(tier.getPermission())) {
             event.setCancelled(true);
             player.sendMessage(MineBoost.getInstance()
                     .getMessage("recipe.no-permission", java.util.Map.of("tier", tier.getLabel())));

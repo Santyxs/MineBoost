@@ -1,31 +1,45 @@
 package mbt.xenova.mineboost.commands;
 
 import mbt.xenova.mineboost.MineBoost;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.CommandSender;
 
 public class HelpCommand {
 
-    private record Entry(String usage, String description, String permission) {}
+    private record CommandEntry(String usageKey, String descKey, String permission) {}
 
-    private static final Entry[] ENTRIES = {
-            new Entry("/mineboost give <pickaxe|shovel|axe> <wood|stone|iron|gold|diamond|netherite> [player]",
-                    "Gives an x2 tool.", "mineboost.give"),
-            new Entry("/mineboost reload",
-                    "Reloads config.yml and the language files.", "mineboost.reload"),
-            new Entry("/mineboost help",
-                    "Shows this command list.", null)
+    private static final CommandEntry[] ENTRIES = {
+            new CommandEntry("command.help.give.usage", "command.help.give.description", "mineboost.give"),
+            new CommandEntry("command.help.reload.usage", "command.help.reload.description", "mineboost.reload"),
+            new CommandEntry("command.help.help.usage", "command.help.help.description", null)
     };
 
-    public void execute(CommandSender sender, String[] args) {
+    public void execute(CommandSender sender) {
         MineBoost plugin = MineBoost.getInstance();
 
-        sender.sendMessage(plugin.getMessage("command.help.header"));
-        for (Entry entry : ENTRIES) {
-            if (entry.permission() != null && !sender.hasPermission(entry.permission())) continue;
+        Component header = LegacyComponentSerializer.legacySection().deserialize(plugin.getMessage("command.help.header"));
+        sender.sendMessage(header);
 
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                    "&e" + entry.usage() + " &7- " + entry.description()));
+        for (CommandEntry entry : ENTRIES) {
+            if (entry.permission() != null && !sender.hasPermission(entry.permission())) {
+                continue;
+            }
+
+            String usageStr = plugin.getMessage(entry.usageKey());
+            String descStr = plugin.getMessage(entry.descKey());
+
+            Component usageComp = LegacyComponentSerializer.legacySection().deserialize(usageStr);
+            Component descComp = LegacyComponentSerializer.legacySection().deserialize(descStr);
+
+            Component line = Component.text()
+                    .append(usageComp)
+                    .append(Component.text(" - ", NamedTextColor.GRAY))
+                    .append(descComp)
+                    .build();
+
+            sender.sendMessage(line);
         }
     }
 }

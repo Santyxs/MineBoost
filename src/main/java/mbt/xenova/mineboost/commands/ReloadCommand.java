@@ -6,7 +6,7 @@ import org.bukkit.command.CommandSender;
 
 public class ReloadCommand {
 
-    public void execute(CommandSender sender, String[] args) {
+    public void execute(CommandSender sender) {
         MineBoost plugin = MineBoost.getInstance();
 
         if (!sender.hasPermission("mineboost.reload")) {

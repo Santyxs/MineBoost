@@ -10,7 +10,15 @@ command:
   received: "&aYou received: &r%tool%"
   given-to: "&a%tool% given to %player%"
   help:
-    header: "&6&lMineBoost &7- Available commands:"
+    give:
+      usage: "/mineboost give <pickaxe|shovel|axe> <wood|stone|iron|gold|diamond|netherite> [player]"
+      description: "Gives an tool."
+    reload:
+      usage: "/mineboost reload"
+      description: "Reloads config and the language files."
+    help:
+      usage: "/mineboost help"
+      description: "Shows this command list."
 
 mine:
   cooldown: "&6⏳ x2 bonus on cooldown: %seconds%s"

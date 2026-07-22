@@ -7,10 +7,18 @@ command:
   player-not-found: "&cJugador no encontrado: %player%"
   console-must-specify-player: "&cDebes especificar un jugador desde la consola."
   target-no-permission: "&c%player% no tiene permiso para tener herramientas de %tier% (%permission%)."
-  received: "&a¡Recibiste: &r%tool%"
+  received: "&aRecibiste: &r%tool%"
   given-to: "&a%tool% entregado a %player%"
   help:
-    header: "&6&lMineBoost &7- Comandos disponibles:"
+    give:
+      usage: "/mineboost give <pickaxe|shovel|axe> <wood|stone|iron|gold|diamond|netherite> [player]"
+      description: "Da una herramienta."
+    reload:
+      usage: "/mineboost reload"
+      description: "Recarga la configuración y los archivos de idioma."
+    help:
+      usage: "/mineboost help"
+      description: "Muestra esta lista de comandos."
 
 mine:
   cooldown: "&6⏳ Bonus x2 en cooldown: %seconds%s"

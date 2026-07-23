@@ -20,20 +20,20 @@ permissions:
     description: Allows using /mineboost reload
     default: op
   mineboost.tier.wood:
-    description: Allows having x2 wooden tools
+    description: Allows having wooden tools
     default: true
   mineboost.tier.stone:
-    description: Allows having x2 stone tools
+    description: Allows having stone tools
     default: true
   mineboost.tier.iron:
-    description: Allows having x2 iron tools
+    description: Allows having iron tools
     default: true
   mineboost.tier.gold:
-    description: Allows having x2 golden tools
+    description: Allows having golden tools
     default: true
   mineboost.tier.diamond:
-    description: Allows having x2 diamond tools
+    description: Allows having diamond tools
     default: true
   mineboost.tier.netherite:
-    description: Allows having x2 netherite tools
+    description: Allows having netherite tools
     default: op

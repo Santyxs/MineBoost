@@ -74,24 +74,24 @@ public class MineBoost extends JavaPlugin {
             saveDefaultLangFile(lang);
         }
 
-        File langFile = new File(getDataFolder(), "lang/messages_" + currentLang + ".yml");
+        File langFile = new File(getDataFolder(), "lang/" + currentLang + ".yml");
         if (!langFile.exists()) {
             getLogger().warning("Language '" + currentLang + "' not found, using '" + FALLBACK_LANG + "' by default.");
             currentLang = FALLBACK_LANG;
-            langFile = new File(getDataFolder(), "lang/messages_" + FALLBACK_LANG + ".yml");
+            langFile = new File(getDataFolder(), "lang/" + FALLBACK_LANG + ".yml");
         }
 
         this.messages = YamlConfiguration.loadConfiguration(langFile);
 
-        File fallbackFile = new File(getDataFolder(), "lang/messages_" + FALLBACK_LANG + ".yml");
+        File fallbackFile = new File(getDataFolder(), "lang/" + FALLBACK_LANG + ".yml");
         this.fallbackMessages = YamlConfiguration.loadConfiguration(fallbackFile);
     }
 
     private void saveDefaultLangFile(String lang) {
-        File file = new File(getDataFolder(), "lang/messages_" + lang + ".yml");
+        File file = new File(getDataFolder(), "lang/" + lang + ".yml");
         if (file.exists()) return;
 
-        String resourcePath = "lang/messages_" + lang + ".yml";
+        String resourcePath = "lang/" + lang + ".yml";
         InputStream in = getResource(resourcePath);
         if (in == null) return;
 

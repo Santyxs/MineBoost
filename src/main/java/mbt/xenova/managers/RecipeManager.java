@@ -80,8 +80,7 @@ public class RecipeManager implements Listener {
     }
 
     private static NamespacedKey buildKey(ToolManager.ToolFamily family, ToolManager.ToolTier tier) {
-        return new NamespacedKey(MineBoost.getInstance(),
-                "tool_" + family.name().toLowerCase() + "_" + tier.name().toLowerCase());
+        return new NamespacedKey(MineBoost.getInstance(), "tool_" + family.name().toLowerCase() + "_" + tier.name().toLowerCase());
     }
 
     // ---------------------------------------------------------------

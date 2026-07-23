@@ -154,6 +154,7 @@ public class ToolManager implements Listener {
 
         List<Component> lore = new ArrayList<>();
 
+        // Header
         lore.add(Component.text()
                 .color(NamedTextColor.DARK_GRAY)
                 .append(Component.text("✦ "))
@@ -164,31 +165,37 @@ public class ToolManager implements Listener {
 
         lore.add(Component.empty());
 
+        // Area
         lore.add(Component.text(plugin.getRawMessage("tool.lore.area", java.util.Map.of(
                         "size", String.valueOf(areaSize), "blocks", String.valueOf(totalBlocks))),
                 NamedTextColor.GRAY));
 
-        // Acción
+        // Action
         lore.add(Component.text(plugin.getRawMessage("tool.lore.action", java.util.Map.of("action", family.getActionWord())),
                 NamedTextColor.GRAY));
 
         // Cooldown
         int cooldownSeconds = plugin.getCooldownSeconds(tier);
         if (cooldownSeconds > 0) {
-            lore.add(Component.text(plugin.getRawMessage("tool.lore.cooldown",
-                    java.util.Map.of("seconds", String.valueOf(cooldownSeconds))), NamedTextColor.GRAY));
+            lore.add(Component.text(plugin.getRawMessage("tool.lore.cooldown", java.util.Map.of("seconds", String.valueOf(cooldownSeconds))), NamedTextColor.GRAY));
         }
 
         lore.add(Component.empty());
+
+        // Compatibility
         lore.add(Component.text(plugin.getRawMessage("tool.lore.compatible", null), NamedTextColor.DARK_GRAY));
         lore.add(Component.text(family.getBlockSummary(), NamedTextColor.GRAY));
+
         lore.add(Component.empty());
+
+        // Stats
         lore.add(Component.text()
                 .color(NamedTextColor.DARK_GRAY)
                 .append(Component.text(plugin.getRawMessage("tool.lore.speed", null) + " "))
                 .append(statBar(tier.efficiencyLevel, 4, NamedTextColor.YELLOW))
                 .build());
 
+        // Durability
         lore.add(Component.text()
                 .color(NamedTextColor.DARK_GRAY)
                 .append(Component.text(plugin.getRawMessage("tool.lore.durability", null) + " "))
@@ -197,16 +204,14 @@ public class ToolManager implements Listener {
 
         lore.add(Component.empty());
 
-        // Status
-        lore.add(LegacyComponentSerializer.legacySection()
-                .deserialize(plugin.getRawMessage(enabled ? "tool.lore.mode-on" : "tool.lore.mode-off", null)));
-        lore.add(LegacyComponentSerializer.legacySection()
-                .deserialize(plugin.getRawMessage("tool.lore.toggle-hint", null)));
+        // Mode
+        lore.add(LegacyComponentSerializer.legacySection().deserialize(plugin.getRawMessage(enabled ? "tool.lore.mode-on" : "tool.lore.mode-off", null)));
+        lore.add(LegacyComponentSerializer.legacySection().deserialize(plugin.getRawMessage("tool.lore.toggle-hint", null)));
 
         lore.add(Component.empty());
 
-        lore.add(LegacyComponentSerializer.legacySection()
-                .deserialize(plugin.getRawMessage("tool.lore.epic", null)));
+        // Footer
+        lore.add(LegacyComponentSerializer.legacySection().deserialize(plugin.getRawMessage("tool.lore.epic", null)));
         lore.add(Component.text("MineBoost", NamedTextColor.DARK_PURPLE, TextDecoration.ITALIC));
 
         return lore;
@@ -243,10 +248,6 @@ public class ToolManager implements Listener {
         } catch (IllegalArgumentException | NullPointerException e) {
             return null;
         }
-    }
-
-    public static boolean isEnabled(ItemStack item) {
-        return !isDisabled(item);
     }
 
     private static boolean isDisabled(ItemStack item) {
@@ -320,7 +321,7 @@ public class ToolManager implements Listener {
 
         Block origin = event.getBlock();
 
-        if (!isEnabled(tool)) return;
+        if (isDisabled(tool)) return;
 
         if (!player.hasPermission(tier.getPermission())) {
             notifyNoPermission(player, tier);
@@ -342,6 +343,7 @@ public class ToolManager implements Listener {
 
         int brokenExtra = 0;
         for (Block b : plane) {
+            if (!b.getChunk().isLoaded()) continue;
             if (b.getType() != origin.getType()) continue;
 
             BlockBreakEvent subEvent = new BlockBreakEvent(b, player);

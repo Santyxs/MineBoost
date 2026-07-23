@@ -2,6 +2,8 @@ package mbt.xenova.commands;
 
 import mbt.xenova.MineBoost;
 import mbt.xenova.managers.RecipeManager;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.command.CommandSender;
 
 public class ReloadCommand {
@@ -18,6 +20,11 @@ public class ReloadCommand {
         plugin.reloadLanguage();
         plugin.refreshCaches();
         RecipeManager.registerAll();
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.discoverRecipes(RecipeManager.getAllKeys());
+        }
+
         sender.sendMessage(plugin.getMessage("command.reload-success"));
     }
 }

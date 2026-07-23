@@ -20,6 +20,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -171,7 +172,7 @@ public class ToolManager implements Listener {
         lore.add(Component.text(plugin.getRawMessage("tool.lore.action", java.util.Map.of("action", family.getActionWord())),
                 NamedTextColor.GRAY));
 
-        // Cooldown (si aplica)
+        // Cooldown
         int cooldownSeconds = plugin.getCooldownSeconds(tier);
         if (cooldownSeconds > 0) {
             lore.add(Component.text(plugin.getRawMessage("tool.lore.cooldown",
@@ -196,7 +197,7 @@ public class ToolManager implements Listener {
 
         lore.add(Component.empty());
 
-        // Estado (activado/desactivado) y pista
+        // Status
         lore.add(LegacyComponentSerializer.legacySection()
                 .deserialize(plugin.getRawMessage(enabled ? "tool.lore.mode-on" : "tool.lore.mode-off", null)));
         lore.add(LegacyComponentSerializer.legacySection()
@@ -219,13 +220,13 @@ public class ToolManager implements Listener {
         return builder.build();
     }
 
-    public static boolean isMultiTool(ItemStack item) {
+    public static boolean isVanillaTool(ItemStack item) {
         if (item == null || !item.hasItemMeta()) return true;
         return !item.getItemMeta().getPersistentDataContainer().has(getFamilyKey(), PersistentDataType.STRING);
     }
 
     public static ToolFamily getFamily(ItemStack item) {
-        if (isMultiTool(item)) return null;
+        if (isVanillaTool(item)) return null;
         String name = item.getItemMeta().getPersistentDataContainer().get(getFamilyKey(), PersistentDataType.STRING);
         try {
             return ToolFamily.valueOf(name);
@@ -235,7 +236,7 @@ public class ToolManager implements Listener {
     }
 
     public static ToolTier getTier(ItemStack item) {
-        if (isMultiTool(item)) return null;
+        if (isVanillaTool(item)) return null;
         String name = item.getItemMeta().getPersistentDataContainer().get(getTierKey(), PersistentDataType.STRING);
         try {
             return ToolTier.valueOf(name);
@@ -245,9 +246,13 @@ public class ToolManager implements Listener {
     }
 
     public static boolean isEnabled(ItemStack item) {
-        if (isMultiTool(item)) return true;
+        return !isDisabled(item);
+    }
+
+    private static boolean isDisabled(ItemStack item) {
+        if (isVanillaTool(item)) return false;
         Byte value = item.getItemMeta().getPersistentDataContainer().get(getEnabledKey(), PersistentDataType.BYTE);
-        return value != null && value != (byte) 1;
+        return value == null || value != (byte) 1;
     }
 
     public static boolean toggleEnabled(ItemStack item) {
@@ -257,7 +262,7 @@ public class ToolManager implements Listener {
             return false;
         }
 
-        boolean newState = isEnabled(item);
+        boolean newState = isDisabled(item);
 
         ItemMeta meta = item.getItemMeta();
         meta.lore(buildLore(family, tier, newState));
@@ -267,16 +272,23 @@ public class ToolManager implements Listener {
         return newState;
     }
 
+    private static NamespacedKey familyKey;
+    private static NamespacedKey tierKey;
+    private static NamespacedKey enabledKey;
+
     private static NamespacedKey getFamilyKey() {
-        return new NamespacedKey(MineBoost.getInstance(), "mineboost-family");
+        if (familyKey == null) familyKey = new NamespacedKey(MineBoost.getInstance(), "mineboost-family");
+        return familyKey;
     }
 
     private static NamespacedKey getTierKey() {
-        return new NamespacedKey(MineBoost.getInstance(), "mineboost-tier");
+        if (tierKey == null) tierKey = new NamespacedKey(MineBoost.getInstance(), "mineboost-tier");
+        return tierKey;
     }
 
     private static NamespacedKey getEnabledKey() {
-        return new NamespacedKey(MineBoost.getInstance(), "mineboost-enabled");
+        if (enabledKey == null) enabledKey = new NamespacedKey(MineBoost.getInstance(), "mineboost-enabled");
+        return enabledKey;
     }
 
     // ---------------------------------------------------------------
@@ -290,12 +302,16 @@ public class ToolManager implements Listener {
 
     private final Map<String, Long> lastAreaBreak = new HashMap<>();
 
+    private boolean processingSubEvent = false;
+
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
+        if (processingSubEvent) return;
+
         Player player = event.getPlayer();
         ItemStack tool = player.getInventory().getItemInMainHand();
 
-        if (isMultiTool(tool)) return;
+        if (isVanillaTool(tool)) return;
 
         ToolFamily family = getFamily(tool);
         ToolTier tier = getTier(tool);
@@ -304,7 +320,7 @@ public class ToolManager implements Listener {
 
         Block origin = event.getBlock();
 
-        if (isEnabled(tool)) return;
+        if (!isEnabled(tool)) return;
 
         if (!player.hasPermission(tier.getPermission())) {
             notifyNoPermission(player, tier);
@@ -329,7 +345,12 @@ public class ToolManager implements Listener {
             if (b.getType() != origin.getType()) continue;
 
             BlockBreakEvent subEvent = new BlockBreakEvent(b, player);
-            Bukkit.getPluginManager().callEvent(subEvent);
+            processingSubEvent = true;
+            try {
+                Bukkit.getPluginManager().callEvent(subEvent);
+            } finally {
+                processingSubEvent = false;
+            }
             if (subEvent.isCancelled()) continue;
 
             b.breakNaturally(tool);
@@ -353,11 +374,12 @@ public class ToolManager implements Listener {
         if (!player.isSneaking()) return;
 
         ItemStack item = event.getItem();
-        if (isMultiTool(item)) return;
+        if (isVanillaTool(item)) return;
 
         event.setCancelled(true);
 
         boolean nowEnabled = toggleEnabled(item);
+        player.getInventory().setItemInMainHand(item);
         MineBoost plugin = MineBoost.getInstance();
 
         if (nowEnabled) {
@@ -367,6 +389,13 @@ public class ToolManager implements Listener {
             player.sendMessage(LegacyComponentSerializer.legacySection().deserialize(plugin.getMessage("toggle.disabled")));
             player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING, 0.7f, 0.8f);
         }
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        UUID id = event.getPlayer().getUniqueId();
+        lastNoPermissionNotice.remove(id);
+        lastAreaBreak.keySet().removeIf(key -> key.startsWith(id + ":"));
     }
 
     private boolean isOnCooldown(Player player, ToolTier tier) {
@@ -446,6 +475,7 @@ public class ToolManager implements Listener {
         } else {
             meta.setDamage(newDamage);
             tool.setItemMeta(meta);
+            player.getInventory().setItemInMainHand(tool);
         }
     }
 }

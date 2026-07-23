@@ -16,6 +16,7 @@ public class ReloadCommand {
 
         plugin.reloadConfig();
         plugin.reloadLanguage();
+        plugin.refreshCaches();
         RecipeManager.registerAll();
         sender.sendMessage(plugin.getMessage("command.reload-success"));
     }

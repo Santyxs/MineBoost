@@ -91,7 +91,7 @@ public class RecipeManager implements Listener {
     @EventHandler
     public void onCraft(CraftItemEvent event) {
         ItemStack result = event.getRecipe().getResult();
-        if (ToolManager.isMultiTool(result)) return;
+        if (ToolManager.isVanillaTool(result)) return;
 
         HumanEntity crafter = event.getWhoClicked();
         if (!(crafter instanceof Player player)) return;

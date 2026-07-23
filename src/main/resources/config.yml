@@ -13,7 +13,7 @@ config-version: 1
 # Prefix for the custom messages
 prefix: "&8[&6MineBoost&8] &r"
 
-# Language for messages (en, es, pt, rus, cn)
+# Language for messages (en, es, pt)
 language: en
 
 # Enable or disable update checking

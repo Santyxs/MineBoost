@@ -10,6 +10,7 @@ command:
   received: "&aYou received: &r%tool%"
   given-to: "&a%tool% given to %player%"
   help:
+    header: "&6&lMineBoost &7- Commands"
     give:
       usage: "/mineboost give <pickaxe|shovel|axe> <wood|stone|iron|gold|diamond|netherite> [player]"
       description: "Gives an tool."

@@ -60,7 +60,7 @@ public class GiveCommand {
         if (!target.hasPermission(tier.getPermission())) {
             sender.sendMessage(LegacyComponentSerializer.legacySection().deserialize(plugin.getMessage("command.target-no-permission", Map.of(
                     "player", target.getName(),
-                    "tier", tier.name().toLowerCase(),
+                    "tier", tier.getLabel(),
                     "permission", tier.getPermission()
             ))));
             return;

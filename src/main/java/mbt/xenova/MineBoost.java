@@ -41,13 +41,19 @@ public class MineBoost extends JavaPlugin {
     private static final int ABSOLUTE_MAX_SIZE = 31;
     private static final int DEFAULT_MAX_SIZE = 11;
 
+    private final Map<ToolManager.ToolTier, Integer> areaSizeCache = new EnumMap<>(ToolManager.ToolTier.class);
+    private final Map<ToolManager.ToolTier, Integer> cooldownCache = new EnumMap<>(ToolManager.ToolTier.class);
+    private Set<String> disabledWorldsCache = Collections.emptySet();
+
     public void onEnable() {
         instance = this;
 
         saveDefaultConfig();
         reloadLanguage();
+        refreshCaches();
 
         getServer().getPluginManager().registerEvents(new RecipeManager(), this);
+        getServer().getPluginManager().registerEvents(new ToolManager(), this);
 
         RecipeManager.registerAll();
 
@@ -85,6 +91,38 @@ public class MineBoost extends JavaPlugin {
 
         File fallbackFile = new File(getDataFolder(), "lang/" + FALLBACK_LANG + ".yml");
         this.fallbackMessages = YamlConfiguration.loadConfiguration(fallbackFile);
+    }
+
+    public void refreshCaches() {
+        FileConfiguration config = getConfig();
+
+        int configuredMax = config.getInt("max-area-size", DEFAULT_MAX_SIZE);
+        int effectiveMax = Math.min(configuredMax, ABSOLUTE_MAX_SIZE);
+        if (effectiveMax < MIN_SIZE) {
+            getLogger().warning("max-area-size (" + effectiveMax + ") is below the minimum of "
+                    + MIN_SIZE + "; using " + MIN_SIZE + " instead.");
+            effectiveMax = MIN_SIZE;
+        }
+
+        for (ToolManager.ToolTier tier : ToolManager.ToolTier.values()) {
+            int size = config.getInt("area-sizes." + tier.name(), MIN_SIZE);
+            if (size < MIN_SIZE) size = MIN_SIZE;
+            if (size > effectiveMax) size = effectiveMax;
+            if (size % 2 == 0) size += 1;
+            if (size > effectiveMax) size -= 2;
+            areaSizeCache.put(tier, size);
+
+            int seconds = config.getInt("cooldown-seconds." + tier.name(), 0);
+            if (seconds < 0) seconds = 0;
+            if (seconds > 3600) seconds = 3600;
+            cooldownCache.put(tier, seconds);
+        }
+
+        Set<String> worlds = new HashSet<>();
+        for (String world : config.getStringList("disabled-worlds")) {
+            worlds.add(world.toLowerCase(Locale.ROOT));
+        }
+        disabledWorldsCache = worlds;
     }
 
     private void saveDefaultLangFile(String lang) {
@@ -162,40 +200,15 @@ public class MineBoost extends JavaPlugin {
     // ---------------------------------------------------------------
 
     public int getAreaSize(ToolManager.ToolTier tier) {
-        FileConfiguration config = getConfig();
-        int size = config.getInt("area-sizes." + tier.name(), MIN_SIZE);
-
-        int configuredMax = config.getInt("max-area-size", DEFAULT_MAX_SIZE);
-        int effectiveMax = Math.min(configuredMax, ABSOLUTE_MAX_SIZE);
-
-        if (size < MIN_SIZE) size = MIN_SIZE;
-        if (size > effectiveMax) size = effectiveMax;
-        if (size % 2 == 0) size += 1;
-        if (size > effectiveMax) size -= 2;
-
-        return size;
+        return areaSizeCache.getOrDefault(tier, MIN_SIZE);
     }
 
     public int getCooldownSeconds(ToolManager.ToolTier tier) {
-        FileConfiguration config = getConfig();
-        int seconds = config.getInt("cooldown-seconds." + tier.name(), 0);
-
-        if (seconds < 0) seconds = 0;
-        if (seconds > 3600) seconds = 3600;
-
-        return seconds;
+        return cooldownCache.getOrDefault(tier, 0);
     }
 
     public boolean isWorldDisabled(String worldName) {
-        FileConfiguration config = getConfig();
-        List<String> disabledWorlds = config.getStringList("disabled-worlds");
-
-        for (String disabled : disabledWorlds) {
-            if (disabled.equalsIgnoreCase(worldName)) {
-                return true;
-            }
-        }
-        return false;
+        return disabledWorldsCache.contains(worldName.toLowerCase(Locale.ROOT));
     }
 
     // ---------------------------------------------------------------

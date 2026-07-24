@@ -88,7 +88,7 @@ public class GiveCommand {
         if (args.length == 1) {
             completions.addAll(List.of("pickaxe", "shovel", "axe"));
         } else if (args.length == 2) {
-            completions.addAll(List.of("wood", "stone", "iron", "gold", "diamond", "netherite"));
+            completions.addAll(List.of("wood", "stone", "copper", "iron", "gold", "diamond", "netherite"));
         } else if (args.length == 3) {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 completions.add(p.getName());
@@ -110,6 +110,7 @@ public class GiveCommand {
         return switch (arg.toLowerCase()) {
             case "wood" -> ToolManager.ToolTier.WOOD;
             case "stone" -> ToolManager.ToolTier.STONE;
+            case "copper" -> ToolManager.ToolTier.COPPER;
             case "iron" -> ToolManager.ToolTier.IRON;
             case "gold" -> ToolManager.ToolTier.GOLD;
             case "diamond" -> ToolManager.ToolTier.DIAMOND;

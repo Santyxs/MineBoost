@@ -1,9 +1,11 @@
+version: 1
+
 command:
   no-permission: "&cYou don't have permission to use this command."
   reload-success: "&aMineBoost configuration reloaded. &7(Tools already given out keep their previous description, but their mining area uses the new value immediately)"
-  usage: "&eUsage: /mineboost give <pickaxe|shovel|axe> <wood|stone|iron|gold|diamond|netherite> [player]"
+  usage: "&eUsage: /mineboost give <pickaxe|shovel|axe> <wood|stone|copper|iron|gold|diamond|netherite> [player]"
   invalid-tool: "&cInvalid tool. Use: pickaxe, shovel or axe."
-  invalid-material: "&cInvalid material. Use: wood, stone, iron, gold, diamond or netherite."
+  invalid-material: "&cInvalid material. Use: wood, stone, copper, iron, gold, diamond or netherite."
   player-not-found: "&cPlayer not found: %player%"
   console-must-specify-player: "&cYou must specify a player from the console."
   target-no-permission: "&c%player% doesn't have permission to hold %tier% tools (%permission%)."
@@ -12,7 +14,7 @@ command:
   help:
     header: "&6&lMineBoost &7- Commands"
     give:
-      usage: "/mineboost give <pickaxe|shovel|axe> <wood|stone|iron|gold|diamond|netherite> [player]"
+      usage: "/mineboost give <pickaxe|shovel|axe> <wood|stone|copper|iron|gold|diamond|netherite> [player]"
       description: "Gives an tool."
     reload:
       usage: "/mineboost reload"
@@ -49,6 +51,7 @@ family:
 tier:
   wood: "Wood"
   stone: "Stone"
+  copper: "Copper"
   iron: "Iron"
   gold: "Gold"
   diamond: "Diamond"

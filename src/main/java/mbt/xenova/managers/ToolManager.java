@@ -3,10 +3,9 @@ package mbt.xenova.managers;
 import mbt.xenova.MineBoost;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
@@ -24,7 +23,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -32,7 +30,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 
 public class ToolManager implements Listener {
@@ -78,24 +75,25 @@ public class ToolManager implements Listener {
     public enum ToolTier {
         WOOD("WOODEN", NamedTextColor.WHITE, 0, 0),
         STONE("STONE", NamedTextColor.GRAY, 1, 1),
+        COPPER("COPPER", TextColor.color(0xB87333), 1, 1),
         IRON("IRON", NamedTextColor.WHITE, 2, 2),
         GOLD("GOLDEN", NamedTextColor.GOLD, 4, 1),
         DIAMOND("DIAMOND", NamedTextColor.AQUA, 3, 3),
         NETHERITE("NETHERITE", NamedTextColor.DARK_PURPLE, 3, 3);
 
         private final String materialPrefix;
-        private final NamedTextColor color;
+        private final TextColor color;
         private final int efficiencyLevel;
         private final int unbreakingLevel;
 
-        ToolTier(String materialPrefix, NamedTextColor color, int efficiencyLevel, int unbreakingLevel) {
+        ToolTier(String materialPrefix, TextColor color, int efficiencyLevel, int unbreakingLevel) {
             this.materialPrefix = materialPrefix;
             this.color = color;
             this.efficiencyLevel = efficiencyLevel;
             this.unbreakingLevel = unbreakingLevel;
         }
 
-        public NamedTextColor getColor() {
+        public TextColor getColor() {
             return color;
         }
 
@@ -296,8 +294,6 @@ public class ToolManager implements Listener {
     // LISTENER
     // ---------------------------------------------------------------
 
-    private final Random random = new Random();
-
     private final Map<UUID, Long> lastNoPermissionNotice = new HashMap<>();
     private static final long NOTICE_COOLDOWN_MS = 4000;
 
@@ -346,24 +342,20 @@ public class ToolManager implements Listener {
             if (!b.getChunk().isLoaded()) continue;
             if (b.getType() != origin.getType()) continue;
 
-            BlockBreakEvent subEvent = new BlockBreakEvent(b, player);
+            boolean broken;
             processingSubEvent = true;
             try {
-                Bukkit.getPluginManager().callEvent(subEvent);
+                broken = player.breakBlock(b);
             } finally {
                 processingSubEvent = false;
             }
-            if (subEvent.isCancelled()) continue;
+            if (!broken) continue;
 
-            b.breakNaturally(tool);
             brokenExtra++;
         }
 
         if (brokenExtra > 0) {
             lastAreaBreak.put(cooldownKey(player, tier), System.currentTimeMillis());
-            if (player.getGameMode() != GameMode.CREATIVE) {
-                damageTool(player, tool, brokenExtra);
-            }
         }
     }
 
@@ -450,34 +442,5 @@ public class ToolManager implements Listener {
             }
         }
         return blocks;
-    }
-
-    private void damageTool(Player player, ItemStack tool, int extraBlocksBroken) {
-        if (!(tool.getItemMeta() instanceof Damageable meta)) {
-            return;
-        }
-
-        int unbreakingLevel = tool.getEnchantmentLevel(Enchantment.UNBREAKING);
-
-        int damageToApply = 0;
-        for (int i = 0; i < extraBlocksBroken; i++) {
-            if (unbreakingLevel == 0 || random.nextInt(unbreakingLevel + 1) == 0) {
-                damageToApply++;
-            }
-        }
-
-        if (damageToApply == 0) return;
-
-        int newDamage = meta.getDamage() + damageToApply;
-        int maxDurability = tool.getType().getMaxDurability();
-
-        if (newDamage >= maxDurability) {
-            player.getInventory().setItemInMainHand(null);
-            player.getWorld().playSound(player.getLocation(), org.bukkit.Sound.ENTITY_ITEM_BREAK, 1f, 1f);
-        } else {
-            meta.setDamage(newDamage);
-            tool.setItemMeta(meta);
-            player.getInventory().setItemInMainHand(tool);
-        }
     }
 }

@@ -72,6 +72,7 @@ public class RecipeManager implements Listener {
         return switch (tier) {
             case WOOD -> new RecipeChoice.MaterialChoice(new ArrayList<>(Tag.PLANKS.getValues()));
             case STONE -> new RecipeChoice.MaterialChoice(Material.COBBLESTONE);
+            case COPPER -> new RecipeChoice.MaterialChoice(Material.COPPER_INGOT);
             case IRON -> new RecipeChoice.MaterialChoice(Material.IRON_INGOT);
             case GOLD -> new RecipeChoice.MaterialChoice(Material.GOLD_INGOT);
             case DIAMOND -> new RecipeChoice.MaterialChoice(Material.DIAMOND);

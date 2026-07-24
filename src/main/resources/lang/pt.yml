@@ -1,9 +1,11 @@
+version: 1
+
 command:
   no-permission: "&cVocê não tem permissão para usar este comando."
   reload-success: "&aConfiguração do MineBoost recarregada. &7(As ferramentas já entregues mantêm a descrição anterior, mas a área de mineração usa o novo valor imediatamente)"
-  usage: "&eUso: /mineboost give <picareta|pá|machado> <madeira|pedra|ferro|ouro|diamante|netherite> [jogador]"
+  usage: "&eUso: /mineboost give <pickaxe|shovel|axe> <wood|stone|copper|iron|gold|diamond|netherite> [jogador]"
   invalid-tool: "&cFerramenta inválida. Use: picareta, pá ou machado."
-  invalid-material: "&cMaterial inválido. Use: madeira, pedra, ferro, ouro, diamante ou netherite."
+  invalid-material: "&cMaterial inválido. Use: madeira, pedra, cobre, ferro, ouro, diamante ou netherite."
   player-not-found: "&cJogador não encontrado: %player%"
   console-must-specify-player: "&cVocê deve especificar um jogador a partir do console."
   target-no-permission: "&c%player% não tem permissão para ferramentas de %tier% (%permission%)."
@@ -12,7 +14,7 @@ command:
   help:
     header: "&6&lMineBoost &7- Comandos"
     give:
-      usage: "/mineboost give <pickaxe|shovel|axe> <wood|stone|iron|gold|diamond|netherite> [player]"
+      usage: "/mineboost give <pickaxe|shovel|axe> <wood|stone|copper|iron|gold|diamond|netherite> [jogador]"
       description: "Entrega uma ferramenta."
     reload:
       usage: "/mineboost reload"
@@ -49,6 +51,7 @@ family:
 tier:
   wood: "Madeira"
   stone: "Pedra"
+  copper: "Cobre"
   iron: "Ferro"
   gold: "Ouro"
   diamond: "Diamante"

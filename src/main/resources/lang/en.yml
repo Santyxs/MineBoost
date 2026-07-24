@@ -2,7 +2,7 @@ version: 1
 
 command:
   no-permission: "&cYou don't have permission to use this command."
-  reload-success: "&aMineBoost configuration reloaded. &7(Tools already given out keep their previous description, but their mining area uses the new value immediately)"
+  reload-success: "&aMineBoost configuration reloaded."
   usage: "&eUsage: /mineboost give <pickaxe|shovel|axe> <wood|stone|copper|iron|gold|diamond|netherite> [player]"
   invalid-tool: "&cInvalid tool. Use: pickaxe, shovel or axe."
   invalid-material: "&cInvalid material. Use: wood, stone, copper, iron, gold, diamond or netherite."

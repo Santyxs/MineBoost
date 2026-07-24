@@ -2,7 +2,7 @@ version: 1
 
 command:
   no-permission: "&cNo tienes permiso para usar este comando."
-  reload-success: "&aConfiguración de MineBoost recargada. &7(Las herramientas ya entregadas mantienen su descripción anterior, pero su área de minado usa el nuevo valor de inmediato)"
+  reload-success: "&aConfiguración de MineBoost recargada."
   usage: "&eUso: /mineboost give <pickaxe|shovel|axe> <wood|stone|copper|iron|gold|diamond|netherite> [jugador]"
   invalid-tool: "&cHerramienta inválida. Usa: pico, pala o hacha."
   invalid-material: "&cMaterial inválido. Usa: madera, piedra, cobre, hierro, oro, diamante o netherite."

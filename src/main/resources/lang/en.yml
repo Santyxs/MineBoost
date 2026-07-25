@@ -19,9 +19,20 @@ command:
     reload:
       usage: "/mineboost reload"
       description: "Reloads config and the language files."
+    info:
+      usage: "/mineboost info <wood|stone|copper|iron|gold|diamond|netherite>"
+      description: "Shows area size, cooldown and permission for a tier."
     help:
       usage: "/mineboost help"
       description: "Shows this command list."
+  info:
+    usage: "&eUsage: /mineboost info <wood|stone|copper|iron|gold|diamond|netherite>"
+    header: "&6&lMineBoost &7- %tier% Info"
+    area: "&7Area: &f%size%x%size% &7(%blocks% blocks)"
+    cooldown: "&7Cooldown: &f%seconds%s"
+    permission: "&7Permission: &f%permission%"
+    has-permission: "&aYou have this permission."
+    no-permission: "&cYou don't have this permission."
 
 mine:
   cooldown: "&6⏳ x2 bonus on cooldown: %seconds%s"

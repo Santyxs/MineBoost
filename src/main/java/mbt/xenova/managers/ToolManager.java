@@ -8,6 +8,8 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -301,6 +303,8 @@ public class ToolManager implements Listener {
 
     private boolean processingSubEvent = false;
 
+    private boolean suppressExpForSubEvent = false;
+
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
         if (processingSubEvent) return;
@@ -337,25 +341,70 @@ public class ToolManager implements Listener {
 
         List<Block> plane = getPlaneBlocks(origin, face, areaSize);
 
+        MineBoost plugin = MineBoost.getInstance();
+        boolean suppressExp = !plugin.isGiveExperienceEnabled();
+        boolean giveEffects = plugin.isAreaBreakEffectsEnabled();
+
         int brokenExtra = 0;
         for (Block b : plane) {
             if (!b.getChunk().isLoaded()) continue;
             if (b.getType() != origin.getType()) continue;
 
+            Material brokenType = b.getType();
+
             boolean broken;
             processingSubEvent = true;
+            suppressExpForSubEvent = suppressExp;
             try {
                 broken = player.breakBlock(b);
             } finally {
                 processingSubEvent = false;
+                suppressExpForSubEvent = false;
             }
             if (!broken) continue;
 
             brokenExtra++;
+
+            if (giveEffects) {
+                spawnBreakParticle(b, brokenType);
+            }
         }
 
         if (brokenExtra > 0) {
             lastAreaBreak.put(cooldownKey(player, tier), System.currentTimeMillis());
+
+            if (giveEffects) {
+                Sound configuredSound = plugin.getAreaBreakSound();
+                Sound soundToPlay = configuredSound != null
+                        ? configuredSound
+                        : origin.getBlockData().getSoundGroup().getBreakSound();
+                origin.getWorld().playSound(origin.getLocation(), soundToPlay,
+                        plugin.getSoundVolume(), plugin.getSoundPitch());
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onSubEventExpAdjust(BlockBreakEvent event) {
+        if (suppressExpForSubEvent) {
+            event.setExpToDrop(0);
+        }
+    }
+
+    private void spawnBreakParticle(Block block, Material brokenType) {
+        MineBoost plugin = MineBoost.getInstance();
+        Particle particle = plugin.getAreaBreakParticle();
+        org.bukkit.Location loc = block.getLocation().add(0.5, 0.5, 0.5);
+
+        try {
+            if (particle == null) {
+                block.getWorld().spawnParticle(Particle.BLOCK, loc, 10, 0.3, 0.3, 0.3, brokenType.createBlockData());
+            } else {
+                block.getWorld().spawnParticle(particle, loc, 10, 0.3, 0.3, 0.3, 0);
+            }
+        } catch (IllegalArgumentException e) {
+            plugin.disableInvalidParticle(particle);
+            block.getWorld().spawnParticle(Particle.BLOCK, loc, 10, 0.3, 0.3, 0.3, brokenType.createBlockData());
         }
     }
 

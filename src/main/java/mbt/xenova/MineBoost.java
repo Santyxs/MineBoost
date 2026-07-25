@@ -8,6 +8,10 @@ import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
 import dev.dejvokep.boostedyaml.dvs.versioning.BasicVersioning;
 import mbt.xenova.commands.*;
 import mbt.xenova.managers.*;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
+import org.bukkit.Registry;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -48,6 +52,13 @@ public class MineBoost extends JavaPlugin {
     private final Map<ToolManager.ToolTier, Integer> areaSizeCache = new EnumMap<>(ToolManager.ToolTier.class);
     private final Map<ToolManager.ToolTier, Integer> cooldownCache = new EnumMap<>(ToolManager.ToolTier.class);
     private Set<String> disabledWorldsCache = Collections.emptySet();
+
+    private boolean giveExperience = true;
+    private boolean areaBreakEffects = true;
+    private Particle areaBreakParticle;
+    private Sound areaBreakSound;
+    private float soundVolume = 1.0f;
+    private float soundPitch = 1.0f;
 
     public void onEnable() {
         instance = this;
@@ -229,6 +240,34 @@ public class MineBoost extends JavaPlugin {
             }
         }
         disabledWorldsCache = worlds;
+
+        giveExperience = config.getBoolean("give-experience", true);
+        areaBreakEffects = config.getBoolean("area-break-effects", true);
+
+        String particleName = config.getString("particle", "BLOCK");
+        if ("BLOCK".equalsIgnoreCase(particleName)) {
+            areaBreakParticle = null;
+        } else {
+            NamespacedKey particleKey = NamespacedKey.minecraft(particleName.toLowerCase(Locale.ROOT));
+            areaBreakParticle = Registry.PARTICLE_TYPE.get(particleKey);
+            if (areaBreakParticle == null) {
+                getLogger().warning("Invalid particle '" + particleName + "' in config.yml; using BLOCK instead.");
+            }
+        }
+
+        String soundName = config.getString("sound", "AUTO");
+        if ("AUTO".equalsIgnoreCase(soundName)) {
+            areaBreakSound = null;
+        } else {
+            NamespacedKey soundKey = NamespacedKey.minecraft(soundName.toLowerCase(Locale.ROOT));
+            areaBreakSound = Registry.SOUNDS.get(soundKey);
+            if (areaBreakSound == null) {
+                getLogger().warning("Invalid sound '" + soundName + "' in config.yml; using AUTO instead.");
+            }
+        }
+
+        soundVolume = config.getDouble("sound-volume", 1.0).floatValue();
+        soundPitch = config.getDouble("sound-pitch", 1.0).floatValue();
     }
 
     public int getAreaSize(ToolManager.ToolTier tier) {
@@ -243,6 +282,37 @@ public class MineBoost extends JavaPlugin {
         return disabledWorldsCache.contains(worldName.toLowerCase(Locale.ROOT));
     }
 
+    public boolean isGiveExperienceEnabled() {
+        return giveExperience;
+    }
+
+    public boolean isAreaBreakEffectsEnabled() {
+        return areaBreakEffects;
+    }
+
+    public Particle getAreaBreakParticle() {
+        return areaBreakParticle;
+    }
+
+    public Sound getAreaBreakSound() {
+        return areaBreakSound;
+    }
+
+    public float getSoundVolume() {
+        return soundVolume;
+    }
+
+    public float getSoundPitch() {
+        return soundPitch;
+    }
+
+    public void disableInvalidParticle(Particle attempted) {
+        if (areaBreakParticle == attempted) {
+            getLogger().warning("Particle '" + attempted + "' needs extra data MineBoost doesn't provide; falling back to BLOCK.");
+            areaBreakParticle = null;
+        }
+    }
+
     // ---------------------------------------------------------------
     // COMMAND HANDLER
     // ---------------------------------------------------------------
@@ -250,6 +320,7 @@ public class MineBoost extends JavaPlugin {
     private static class CommandHandler implements CommandExecutor, TabCompleter {
 
         private final GiveCommand giveCommand = new GiveCommand();
+        private final InfoCommand infoCommand = new InfoCommand();
         private final ReloadCommand reloadCommand = new ReloadCommand();
         private final HelpCommand helpCommand = new HelpCommand();
 
@@ -263,9 +334,10 @@ public class MineBoost extends JavaPlugin {
             String[] rest = Arrays.copyOfRange(args, 1, args.length);
 
             switch (args[0].toLowerCase()) {
-                case "give"   -> giveCommand.execute(sender, rest);
+                case "give" -> giveCommand.execute(sender, rest);
+                case "info" -> infoCommand.execute(sender, rest);
                 case "reload" -> reloadCommand.execute(sender);
-                default       -> helpCommand.execute(sender);
+                default -> helpCommand.execute(sender);
             }
             return true;
         }
@@ -275,7 +347,7 @@ public class MineBoost extends JavaPlugin {
             List<String> completions = new ArrayList<>();
 
             if (args.length == 1) {
-                for (String name : List.of("give", "reload", "help")) {
+                for (String name : List.of("give", "info", "reload", "help")) {
                     if (name.startsWith(args[0].toLowerCase())) completions.add(name);
                 }
                 return completions;
@@ -284,6 +356,13 @@ public class MineBoost extends JavaPlugin {
             String[] rest = Arrays.copyOfRange(args, 1, args.length);
             if ("give".equalsIgnoreCase(args[0])) {
                 return giveCommand.tabComplete(rest);
+            }
+
+            if ("info".equalsIgnoreCase(args[0])) {
+                List<String> suggestions = infoCommand.tabComplete(rest);
+                String prefix = (rest.length > 0) ? rest[0].toLowerCase() : "";
+                suggestions.removeIf(s -> !s.toLowerCase().startsWith(prefix));
+                return suggestions;
             }
             return completions;
         }

@@ -19,9 +19,20 @@ command:
     reload:
       usage: "/mineboost reload"
       description: "Recarga la configuración y los archivos de idioma."
+    info:
+      usage: "/mineboost info <wood|stone|copper|iron|gold|diamond|netherite>"
+      description: "Muestra el área, cooldown y permiso de un tier."
     help:
       usage: "/mineboost help"
       description: "Muestra esta lista de comandos."
+  info:
+    usage: "&eUso: /mineboost info <wood|stone|copper|iron|gold|diamond|netherite>"
+    header: "&6&lMineBoost &7- Info de %tier%"
+    area: "&7Área: &f%size%x%size% &7(%blocks% bloques)"
+    cooldown: "&7Cooldown: &f%seconds%s"
+    permission: "&7Permiso: &f%permission%"
+    has-permission: "&aTienes este permiso."
+    no-permission: "&cNo tienes este permiso."
 
 mine:
   cooldown: "&6⏳ Bonus x2 en cooldown: %seconds%s"
@@ -37,16 +48,10 @@ toggle:
 family:
   pickaxe:
     label: "Pico"
-    action: "picada"
-    blocks: "Piedra, menas, ladrillo, hormigón"
   shovel:
     label: "Pala"
-    action: "cavada"
-    blocks: "Tierra, arena, grava, nieve, arcilla"
   axe:
     label: "Hacha"
-    action: "hachada"
-    blocks: "Troncos, madera, tablones"
 
 tier:
   wood: "Madera"
@@ -58,15 +63,12 @@ tier:
   netherite: "Netherite"
 
 tool:
-  displayname: "%tier% %family% x2"
+  displayname: "%family% de %tier% x2"
   lore:
     area: "Rompe un área de &f%size%x%size%&7 (%blocks% bloques)"
-    action: "del mismo tipo de una sola %action%."
     cooldown: "Cooldown: &f%seconds%s&7 entre usos del bonus."
-    compatible: "Compatible con:"
     speed: "Velocidad:"
     durability: "Durabilidad:"
     mode-on: "&a● Modo x2: ACTIVADO"
     mode-off: "&c● Modo x2: DESACTIVADO"
     toggle-hint: "&8&o(Agáchate + clic derecho para cambiar)"
-    epic: "&6&o★ Herramienta Épica"

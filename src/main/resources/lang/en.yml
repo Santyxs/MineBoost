@@ -48,16 +48,10 @@ toggle:
 family:
   pickaxe:
     label: "Pickaxe"
-    action: "swing"
-    blocks: "Stone, ores, brick, concrete"
   shovel:
     label: "Shovel"
-    action: "dig"
-    blocks: "Dirt, sand, gravel, snow, clay"
   axe:
     label: "Axe"
-    action: "chop"
-    blocks: "Logs, wood, planks"
 
 tier:
   wood: "Wood"
@@ -72,12 +66,9 @@ tool:
   displayname: "%tier% %family% x2"
   lore:
     area: "Breaks an area of &f%size%x%size%&7 (%blocks% blocks)"
-    action: "of the same type in a single %action%."
     cooldown: "Cooldown: &f%seconds%s&7 between bonus uses."
-    compatible: "Compatible with:"
     speed: "Speed:"
     durability: "Durability:"
     mode-on: "&a● x2 Mode: ENABLED"
     mode-off: "&c● x2 Mode: DISABLED"
     toggle-hint: "&8&o(Sneak + right-click to toggle)"
-    epic: "&6&o★ Epic Tool"

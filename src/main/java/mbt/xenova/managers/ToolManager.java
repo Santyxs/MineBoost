@@ -64,14 +64,6 @@ public class ToolManager implements Listener {
         public String getLabel() {
             return MineBoost.getInstance().getRawMessage(langKey() + ".label", null);
         }
-
-        public String getActionWord() {
-            return MineBoost.getInstance().getRawMessage(langKey() + ".action", null);
-        }
-
-        public String getBlockSummary() {
-            return MineBoost.getInstance().getRawMessage(langKey() + ".blocks", null);
-        }
     }
 
     public enum ToolTier {
@@ -154,24 +146,9 @@ public class ToolManager implements Listener {
 
         List<Component> lore = new ArrayList<>();
 
-        // Header
-        lore.add(Component.text()
-                .color(NamedTextColor.DARK_GRAY)
-                .append(Component.text("✦ "))
-                .append(Component.text(tier.getLabel(), tier.getColor()))
-                .append(Component.text(" · "))
-                .append(Component.text(family.getLabel(), NamedTextColor.WHITE))
-                .build());
-
-        lore.add(Component.empty());
-
         // Area
         lore.add(Component.text(plugin.getRawMessage("tool.lore.area", java.util.Map.of(
                         "size", String.valueOf(areaSize), "blocks", String.valueOf(totalBlocks))),
-                NamedTextColor.GRAY));
-
-        // Action
-        lore.add(Component.text(plugin.getRawMessage("tool.lore.action", java.util.Map.of("action", family.getActionWord())),
                 NamedTextColor.GRAY));
 
         // Cooldown
@@ -179,12 +156,6 @@ public class ToolManager implements Listener {
         if (cooldownSeconds > 0) {
             lore.add(Component.text(plugin.getRawMessage("tool.lore.cooldown", java.util.Map.of("seconds", String.valueOf(cooldownSeconds))), NamedTextColor.GRAY));
         }
-
-        lore.add(Component.empty());
-
-        // Compatibility
-        lore.add(Component.text(plugin.getRawMessage("tool.lore.compatible", null), NamedTextColor.DARK_GRAY));
-        lore.add(Component.text(family.getBlockSummary(), NamedTextColor.GRAY));
 
         lore.add(Component.empty());
 
@@ -211,7 +182,6 @@ public class ToolManager implements Listener {
         lore.add(Component.empty());
 
         // Footer
-        lore.add(LegacyComponentSerializer.legacySection().deserialize(plugin.getRawMessage("tool.lore.epic", null)));
         lore.add(Component.text("MineBoost", NamedTextColor.DARK_PURPLE, TextDecoration.ITALIC));
 
         return lore;

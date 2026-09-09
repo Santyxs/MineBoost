@@ -48,16 +48,10 @@ toggle:
 family:
   pickaxe:
     label: "Picareta"
-    action: "picada"
-    blocks: "Pedra, minérios, tijolo, concreto"
   shovel:
     label: "Pá"
-    action: "cavada"
-    blocks: "Terra, areia, cascalho, neve, argila"
   axe:
     label: "Machado"
-    action: "machadada"
-    blocks: "Toras, madeira, tábuas"
 
 tier:
   wood: "Madeira"
@@ -69,15 +63,12 @@ tier:
   netherite: "Netherite"
 
 tool:
-  displayname: "%tier% %family% x2"
+  displayname: "%family% de %tier% x2"
   lore:
     area: "Quebra uma área de &f%size%x%size%&7 (%blocks% blocos)"
-    action: "do mesmo tipo em uma única %action%."
     cooldown: "Cooldown: &f%seconds%s&7 entre usos do bônus."
-    compatible: "Compatível com:"
     speed: "Velocidade:"
     durability: "Durabilidade:"
     mode-on: "&a● Modo x2: ATIVADO"
     mode-off: "&c● Modo x2: DESATIVADO"
     toggle-hint: "&8&o(Agache + clique direito para alternar)"
-    epic: "&6&o★ Ferramenta Épica"

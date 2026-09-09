@@ -9,3 +9,4 @@ mbt\xenova\managers\RecipeManager$1.class
 mbt\xenova\managers\ToolManager$ToolFamily.class
 mbt\xenova\commands\HelpCommand.class
 mbt\xenova\managers\RecipeManager.class
+mbt\xenova\commands\InfoCommand.class

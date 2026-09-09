@@ -44,6 +44,9 @@ cooldowns:
   DIAMOND: 7
   NETHERITE: 10
 
+# Whether the extra blocks broken by the area bonus also drop XP orbs
+give-experience: true
+
 # ━━━━━━━━━━━━━━━━━━━━━━━━ #
 #      WORLDS SETTINGS     #
 # ━━━━━━━━━━━━━━━━━━━━━━━━ #
@@ -51,3 +54,24 @@ cooldowns:
 # Worlds where the tool is disabled.
 disabled-worlds:
   - world_the_end
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━ #
+#     EFFECTS SETTINGS     #
+# ━━━━━━━━━━━━━━━━━━━━━━━━ #
+
+# Whether the area bonus shows particles on every extra block broken.
+area-break-effects: true
+
+# Particle shown on every extra block broken.
+# - "BLOCK" (default) uses the real texture of the broken block, like a vanilla break.
+#   Full list: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Particle.html
+particle: BLOCK
+
+# Sound played once per area-break activation (not once per block, to avoid spam).
+# - "AUTO" (default) uses the real sound of the broken block, like a vanilla break.
+#   Full list: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
+sound: AUTO
+
+# Volume and pitch applied to the sound above.
+sound-volume: 1.0
+sound-pitch: 1.0

@@ -1,4 +1,4 @@
-version: 1
+version: 2
 
 command:
   no-permission: "&cVocê não tem permissão para usar este comando."
@@ -11,6 +11,7 @@ command:
   target-no-permission: "&c%player% não tem permissão para ferramentas de %tier% (%permission%)."
   received: "&aVocê recebeu: &r%tool%"
   given-to: "&a%tool% entregue a %player%"
+  inventory-full-drop: "&eSeu inventário estava cheio, a ferramenta caiu no chão."
   help:
     header: "&6&lMineBoost &7- Comandos"
     give:

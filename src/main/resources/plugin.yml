@@ -25,6 +25,9 @@ permissions:
   mineboost.tier.stone:
     description: Allows having stone tools
     default: true
+  mineboost.tier.copper:
+    description: Allows having copper tools
+    default: true
   mineboost.tier.iron:
     description: Allows having iron tools
     default: true

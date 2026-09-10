@@ -67,7 +67,11 @@ public class GiveCommand {
         }
 
         ItemStack item = ToolManager.createTool(family, tier);
-        target.getInventory().addItem(item);
+
+        Map<Integer, ItemStack> leftovers = target.getInventory().addItem(item);
+        for (ItemStack leftover : leftovers.values()) {
+            target.getWorld().dropItemNaturally(target.getLocation(), leftover);
+        }
 
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return;
@@ -76,6 +80,10 @@ public class GiveCommand {
         String cleanName = PlainTextComponentSerializer.plainText().serialize(Objects.requireNonNull(meta.displayName()));
 
         target.sendMessage(LegacyComponentSerializer.legacySection().deserialize(plugin.getMessage("command.received", Map.of("tool", coloredName))));
+
+        if (!leftovers.isEmpty()) {
+            target.sendMessage(LegacyComponentSerializer.legacySection().deserialize(plugin.getMessage("command.inventory-full-drop")));
+        }
 
         if (!target.equals(sender)) {
             sender.sendMessage(LegacyComponentSerializer.legacySection().deserialize(plugin.getMessage("command.given-to",

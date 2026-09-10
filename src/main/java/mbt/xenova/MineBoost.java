@@ -37,7 +37,6 @@ public class MineBoost extends JavaPlugin {
 
     private YamlDocument messages;
     private YamlDocument fallbackMessages;
-    private String currentLang;
 
     // ---------------------------------------------------------------
     // CONFIG
@@ -71,6 +70,10 @@ public class MineBoost extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ToolManager(), this);
 
         RecipeManager.registerAll();
+
+        if (config.getBoolean("check-updates", true)) {
+            new UpdateChecker().checkAsync();
+        }
 
         CommandHandler commandHandler = new CommandHandler();
         Objects.requireNonNull(getCommand("mineboost")).setExecutor(commandHandler);
@@ -121,7 +124,7 @@ public class MineBoost extends JavaPlugin {
     // ---------------------------------------------------------------
 
     public void reloadLanguage() {
-        this.currentLang = config.getString("language", FALLBACK_LANG).toLowerCase();
+        String currentLang = config.getString("language", FALLBACK_LANG).toLowerCase();
 
         Map<String, YamlDocument> loaded = new HashMap<>();
         for (String lang : BUNDLED_LANGS) {
@@ -134,7 +137,6 @@ public class MineBoost extends JavaPlugin {
 
         if (this.messages == null) {
             getLogger().warning("Language '" + currentLang + "' not found, using '" + FALLBACK_LANG + "' by default.");
-            currentLang = FALLBACK_LANG;
             this.messages = this.fallbackMessages;
         }
     }
@@ -169,9 +171,6 @@ public class MineBoost extends JavaPlugin {
             raw = fallbackMessages.getString(key, "&cMissing message: " + key);
         }
 
-        String prefix = messages.getString("prefix", fallbackMessages.getString("prefix", ""));
-        raw = raw.replace("%prefix%", prefix);
-
         if (placeholders != null) {
             for (Map.Entry<String, String> entry : placeholders.entrySet()) {
                 raw = raw.replace("%" + entry.getKey() + "%", entry.getValue());
@@ -196,16 +195,6 @@ public class MineBoost extends JavaPlugin {
         return raw.replace('&', '§');
     }
 
-    @SuppressWarnings("unused")
-    public String getCurrentLang() {
-        return currentLang;
-    }
-
-    @SuppressWarnings("unused")
-    public String[] getAvailableLangs() {
-        return BUNDLED_LANGS.clone();
-    }
-
     // ---------------------------------------------------------------
     // TOOLS SETTINGS
     // ---------------------------------------------------------------
@@ -226,7 +215,7 @@ public class MineBoost extends JavaPlugin {
             if (size > effectiveMax) size -= 2;
             areaSizeCache.put(tier, size);
 
-            int seconds = config.getInt("cooldown." + tier.name(), 0);
+            int seconds = config.getInt("cooldowns." + tier.name(), 0);
             if (seconds < 0) seconds = 0;
             if (seconds > 3600) seconds = 3600;
             cooldownCache.put(tier, seconds);
@@ -342,8 +331,7 @@ public class MineBoost extends JavaPlugin {
             return true;
         }
 
-        public List<String> onTabComplete(@NonNull CommandSender sender, @NonNull Command command,
-                                          @NonNull String alias, String[] args) {
+        public List<String> onTabComplete(@NonNull CommandSender sender, @NonNull Command command, @NonNull String alias, String[] args) {
             List<String> completions = new ArrayList<>();
 
             if (args.length == 1) {

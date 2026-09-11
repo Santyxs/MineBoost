@@ -1,5 +1,4 @@
 mbt\xenova\managers\ToolManager$ToolTier.class
-mbt\xenova\managers\UpdateChecker.class
 mbt\xenova\managers\ToolManager.class
 mbt\xenova\commands\ReloadCommand.class
 mbt\xenova\MineBoost.class
@@ -8,7 +7,6 @@ mbt\xenova\MineBoost$CommandHandler.class
 mbt\xenova\commands\GiveCommand.class
 mbt\xenova\managers\RecipeManager$1.class
 mbt\xenova\managers\ToolManager$ToolFamily.class
-mbt\xenova\managers\UpdateChecker$UpdateCheckException.class
 mbt\xenova\commands\HelpCommand.class
 mbt\xenova\managers\RecipeManager.class
 mbt\xenova\commands\InfoCommand.class

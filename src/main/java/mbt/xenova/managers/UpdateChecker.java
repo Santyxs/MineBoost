@@ -22,17 +22,12 @@ public class UpdateChecker {
     public void checkAsync() {
         MineBoost plugin = MineBoost.getInstance();
 
-        if (RESOURCE_ID <= 0) {
-            plugin.getLogger().warning("Update checking is enabled but no Spigot resource ID is configured yet; skipping check.");
-            return;
-        }
-
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 String json = fetchLatestVersionJson();
                 String remoteVersion = extractVersionName(json);
                 if (remoteVersion == null) {
-                    plugin.getLogger().warning("Could not read the latest version from Spiget's response.");
+                    plugin.getLogger().warning("Could not read the latest version from Spiget response.");
                     return;
                 }
 
@@ -58,6 +53,26 @@ public class UpdateChecker {
         connection.setReadTimeout(5000);
         connection.setRequestProperty("User-Agent", "MineBoost-UpdateChecker");
 
+        try {
+            int status = connection.getResponseCode();
+
+            if (status == HttpURLConnection.HTTP_OK) {
+                return readBody(connection);
+            }
+
+            String reason = switch (status) {
+                case HttpURLConnection.HTTP_NOT_FOUND -> "resource ID " + RESOURCE_ID + " not found on Spiget (404).";
+                case 429 -> "rate limited by Spiget (429); try again later.";
+                case HttpURLConnection.HTTP_INTERNAL_ERROR, HttpURLConnection.HTTP_UNAVAILABLE -> "Spiget server error (" + status + ").";
+                default -> "unexpected HTTP status " + status + ".";
+            };
+            throw new UpdateCheckException(reason);
+        } finally {
+            connection.disconnect();
+        }
+    }
+
+    private String readBody(HttpURLConnection connection) throws Exception {
         StringBuilder response = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
@@ -65,10 +80,7 @@ public class UpdateChecker {
             while ((line = reader.readLine()) != null) {
                 response.append(line);
             }
-        } finally {
-            connection.disconnect();
         }
-
         return response.toString();
     }
 
@@ -76,5 +88,11 @@ public class UpdateChecker {
         JsonObject root = JsonParser.parseString(json).getAsJsonObject();
         if (!root.has("name")) return null;
         return root.get("name").getAsString();
+    }
+
+    private static class UpdateCheckException extends Exception {
+        UpdateCheckException(String message) {
+            super(message);
+        }
     }
 }

@@ -2,6 +2,7 @@ package mbt.xenova.commands;
 
 import mbt.xenova.MineBoost;
 import mbt.xenova.managers.RecipeManager;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.command.CommandSender;
@@ -11,10 +12,7 @@ public class ReloadCommand {
     public void execute(CommandSender sender) {
         MineBoost plugin = MineBoost.getInstance();
 
-        if (!sender.hasPermission("mineboost.reload")) {
-            sender.sendMessage(plugin.getMessage("command.no-permission"));
-            return;
-        }
+        if (plugin.lacksPermission(sender, "mineboost.reload")) return;
 
         plugin.reloadConfig();
         plugin.reloadLanguage();
@@ -22,9 +20,9 @@ public class ReloadCommand {
         RecipeManager.registerAll();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.discoverRecipes(RecipeManager.getAllKeys());
+            player.discoverRecipes(RecipeManager.getKeysForPlayer(player));
         }
 
-        sender.sendMessage(plugin.getMessage("command.reload-success"));
+        sender.sendMessage(LegacyComponentSerializer.legacySection().deserialize(plugin.getMessage("command.reload-success")));
     }
 }

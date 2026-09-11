@@ -1,5 +1,5 @@
 name: MineBoost
-version: 0.1
+version: 0.2
 description: MineBoost is a plugin that allows players to break multiple blocks with a single action. Each tool has a specific area of effect and can have a cooldown between uses.
 authors:
   - Santysx
@@ -16,6 +16,12 @@ permissions:
   mineboost.give:
     description: Allows using /mineboost give
     default: op
+  mineboost.info:
+    description: Allows using /mineboost info
+    default: true
+  mineboost.help:
+    description: Allows using /mineboost help
+    default: true
   mineboost.reload:
     description: Allows using /mineboost reload
     default: op
@@ -24,6 +30,9 @@ permissions:
     default: true
   mineboost.tier.stone:
     description: Allows having stone tools
+    default: true
+  mineboost.tier.copper:
+    description: Allows having copper tools
     default: true
   mineboost.tier.iron:
     description: Allows having iron tools

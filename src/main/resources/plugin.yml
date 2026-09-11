@@ -16,6 +16,12 @@ permissions:
   mineboost.give:
     description: Allows using /mineboost give
     default: op
+  mineboost.info:
+    description: Allows using /mineboost info
+    default: true
+  mineboost.help:
+    description: Allows using /mineboost help
+    default: true
   mineboost.reload:
     description: Allows using /mineboost reload
     default: op

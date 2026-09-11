@@ -14,6 +14,8 @@ public class InfoCommand {
     public void execute(CommandSender sender, String[] args) {
         MineBoost plugin = MineBoost.getInstance();
 
+        if (plugin.lacksPermission(sender, "mineboost.info")) return;
+
         if (args.length < 1) {
             sender.sendMessage(LegacyComponentSerializer.legacySection().deserialize(plugin.getMessage("command.info.usage")));
             return;

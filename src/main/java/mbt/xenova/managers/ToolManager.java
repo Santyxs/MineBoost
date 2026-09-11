@@ -29,6 +29,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +63,7 @@ public class ToolManager implements Listener {
         }
 
         public String getLabel() {
-            return MineBoost.getInstance().getRawMessage(langKey() + ".label", null);
+            return MineBoost.getInstance().getMessage(langKey() + ".label");
         }
     }
 
@@ -96,7 +97,7 @@ public class ToolManager implements Listener {
         }
 
         public String getLabel() {
-            return MineBoost.getInstance().getRawMessage("tier." + name().toLowerCase(), null);
+            return MineBoost.getInstance().getMessage("tier." + name().toLowerCase());
         }
     }
 
@@ -109,11 +110,11 @@ public class ToolManager implements Listener {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
 
-        String displayName = MineBoost.getInstance().getRawMessage("tool.displayname", java.util.Map.of("tier", tier.getLabel(), "family", family.getLabel()));
+        String displayName = MineBoost.getInstance().getMessage("tool.displayname", java.util.Map.of("tier", tier.getLabel(), "family", family.getLabel()));
 
         meta.displayName(Component.text(displayName, tier.getColor(), TextDecoration.BOLD));
 
-        meta.lore(buildLore(family, tier));
+        meta.lore(buildLore(tier));
 
         if (tier.efficiencyLevel > 0) {
             meta.addEnchant(Enchantment.EFFICIENCY, tier.efficiencyLevel, true);
@@ -135,11 +136,11 @@ public class ToolManager implements Listener {
         return item;
     }
 
-    private static List<Component> buildLore(ToolFamily family, ToolTier tier) {
-        return buildLore(family, tier, true);
+    private static List<Component> buildLore(ToolTier tier) {
+        return buildLore(tier, true);
     }
 
-    private static List<Component> buildLore(ToolFamily family, ToolTier tier, boolean enabled) {
+    private static List<Component> buildLore(ToolTier tier, boolean enabled) {
         MineBoost plugin = MineBoost.getInstance();
         int areaSize = plugin.getAreaSize(tier);
         int totalBlocks = areaSize * areaSize;
@@ -147,14 +148,18 @@ public class ToolManager implements Listener {
         List<Component> lore = new ArrayList<>();
 
         // Area
-        lore.add(Component.text(plugin.getRawMessage("tool.lore.area", java.util.Map.of(
-                        "size", String.valueOf(areaSize), "blocks", String.valueOf(totalBlocks))),
-                NamedTextColor.GRAY));
+        lore.add(Component.text()
+                .color(NamedTextColor.GRAY)
+                .append(LegacyComponentSerializer.legacySection().deserialize(plugin.getMessage("tool.lore.area", java.util.Map.of("size", String.valueOf(areaSize), "blocks", String.valueOf(totalBlocks)))))
+                .build());
 
         // Cooldown
         int cooldownSeconds = plugin.getCooldownSeconds(tier);
         if (cooldownSeconds > 0) {
-            lore.add(Component.text(plugin.getRawMessage("tool.lore.cooldown", java.util.Map.of("seconds", String.valueOf(cooldownSeconds))), NamedTextColor.GRAY));
+            lore.add(Component.text()
+                    .color(NamedTextColor.GRAY)
+                    .append(LegacyComponentSerializer.legacySection().deserialize(plugin.getMessage("tool.lore.cooldown", java.util.Map.of("seconds", String.valueOf(cooldownSeconds)))))
+                    .build());
         }
 
         lore.add(Component.empty());
@@ -162,22 +167,22 @@ public class ToolManager implements Listener {
         // Stats
         lore.add(Component.text()
                 .color(NamedTextColor.DARK_GRAY)
-                .append(Component.text(plugin.getRawMessage("tool.lore.speed", null) + " "))
+                .append(Component.text(plugin.getMessage("tool.lore.speed") + " "))
                 .append(statBar(tier.efficiencyLevel, 4, NamedTextColor.YELLOW))
                 .build());
 
         // Durability
         lore.add(Component.text()
                 .color(NamedTextColor.DARK_GRAY)
-                .append(Component.text(plugin.getRawMessage("tool.lore.durability", null) + " "))
+                .append(Component.text(plugin.getMessage("tool.lore.durability") + " "))
                 .append(statBar(tier.unbreakingLevel, 3, NamedTextColor.GREEN))
                 .build());
 
         lore.add(Component.empty());
 
         // Mode
-        lore.add(LegacyComponentSerializer.legacySection().deserialize(plugin.getRawMessage(enabled ? "tool.lore.mode-on" : "tool.lore.mode-off", null)));
-        lore.add(LegacyComponentSerializer.legacySection().deserialize(plugin.getRawMessage("tool.lore.toggle-hint", null)));
+        lore.add(LegacyComponentSerializer.legacySection().deserialize(plugin.getMessage(enabled ? "tool.lore.mode-on" : "tool.lore.mode-off")));
+        lore.add(LegacyComponentSerializer.legacySection().deserialize(plugin.getMessage("tool.lore.toggle-hint")));
 
         lore.add(Component.empty());
 
@@ -188,7 +193,7 @@ public class ToolManager implements Listener {
     }
 
     private static Component statBar(int level, int max, NamedTextColor color) {
-        net.kyori.adventure.text.TextComponent.@org.jetbrains.annotations.NotNull Builder builder = Component.text();
+        var builder = Component.text();
         for (int i = 1; i <= max; i++) {
             builder.append(Component.text("★", i <= level ? color : NamedTextColor.DARK_GRAY));
         }
@@ -227,16 +232,15 @@ public class ToolManager implements Listener {
     }
 
     public static boolean toggleEnabled(ItemStack item) {
-        ToolFamily family = getFamily(item);
         ToolTier tier = getTier(item);
-        if (family == null || tier == null) {
+        if (tier == null) {
             return false;
         }
 
         boolean newState = isDisabled(item);
 
         ItemMeta meta = item.getItemMeta();
-        meta.lore(buildLore(family, tier, newState));
+        meta.lore(buildLore(tier, newState));
         meta.getPersistentDataContainer().set(getEnabledKey(), PersistentDataType.BYTE, (byte) (newState ? 1 : 0));
         item.setItemMeta(meta);
 
@@ -269,7 +273,7 @@ public class ToolManager implements Listener {
     private final Map<UUID, Long> lastNoPermissionNotice = new HashMap<>();
     private static final long NOTICE_COOLDOWN_MS = 4000;
 
-    private final Map<String, Long> lastAreaBreak = new HashMap<>();
+    private final Map<UUID, EnumMap<ToolTier, Long>> lastAreaBreak = new HashMap<>();
 
     private boolean processingSubEvent = false;
 
@@ -341,7 +345,7 @@ public class ToolManager implements Listener {
         }
 
         if (brokenExtra > 0) {
-            lastAreaBreak.put(cooldownKey(player, tier), System.currentTimeMillis());
+            lastAreaBreak.computeIfAbsent(player.getUniqueId(), k -> new EnumMap<>(ToolTier.class)).put(tier, System.currentTimeMillis());
 
             if (giveEffects) {
                 Sound configuredSound = plugin.getAreaBreakSound();
@@ -408,14 +412,15 @@ public class ToolManager implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         UUID id = event.getPlayer().getUniqueId();
         lastNoPermissionNotice.remove(id);
-        lastAreaBreak.keySet().removeIf(key -> key.startsWith(id + ":"));
+        lastAreaBreak.remove(id);
     }
 
     private boolean isOnCooldown(Player player, ToolTier tier) {
         int cooldownSeconds = MineBoost.getInstance().getCooldownSeconds(tier);
         if (cooldownSeconds <= 0) return false;
 
-        Long last = lastAreaBreak.get(cooldownKey(player, tier));
+        Map<ToolTier, Long> playerBreaks = lastAreaBreak.get(player.getUniqueId());
+        Long last = playerBreaks == null ? null : playerBreaks.get(tier);
         if (last == null) return false;
 
         long elapsedMs = System.currentTimeMillis() - last;
@@ -423,14 +428,9 @@ public class ToolManager implements Listener {
         if (remainingMs <= 0) return false;
 
         int remainingSeconds = (int) Math.ceil(remainingMs / 1000.0);
-        String message = MineBoost.getInstance()
-                .getMessage("mine.cooldown", java.util.Map.of("seconds", String.valueOf(remainingSeconds)));
+        String message = MineBoost.getInstance().getMessage("mine.cooldown", java.util.Map.of("seconds", String.valueOf(remainingSeconds)));
         player.sendActionBar(LegacyComponentSerializer.legacySection().deserialize(message));
         return true;
-    }
-
-    private String cooldownKey(Player player, ToolTier tier) {
-        return player.getUniqueId() + ":" + tier.name();
     }
 
     private void notifyNoPermission(Player player, ToolTier tier) {

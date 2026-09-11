@@ -1,6 +1,7 @@
 package mbt.xenova.managers;
 
 import mbt.xenova.MineBoost;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -19,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeManager implements Listener {
+
+    private static final List<Material> PLANK_MATERIALS = List.copyOf(Tag.PLANKS.getValues());
 
     // ---------------------------------------------------------------
     // REGISTRATION
@@ -49,6 +52,18 @@ public class RecipeManager implements Listener {
         return keys;
     }
 
+    public static List<NamespacedKey> getKeysForPlayer(Player player) {
+        List<NamespacedKey> keys = new ArrayList<>();
+        for (ToolManager.ToolFamily family : ToolManager.ToolFamily.values()) {
+            for (ToolManager.ToolTier tier : ToolManager.ToolTier.values()) {
+                if (player.hasPermission(tier.getPermission())) {
+                    keys.add(buildKey(family, tier));
+                }
+            }
+        }
+        return keys;
+    }
+
     private static void registerRecipe(ToolManager.ToolFamily family, ToolManager.ToolTier tier) {
         ItemStack result = ToolManager.createTool(family, tier);
         NamespacedKey key = buildKey(family, tier);
@@ -70,7 +85,7 @@ public class RecipeManager implements Listener {
 
     private static RecipeChoice getMaterialChoice(ToolManager.ToolTier tier) {
         return switch (tier) {
-            case WOOD -> new RecipeChoice.MaterialChoice(new ArrayList<>(Tag.PLANKS.getValues()));
+            case WOOD -> new RecipeChoice.MaterialChoice(PLANK_MATERIALS);
             case STONE -> new RecipeChoice.MaterialChoice(Material.COBBLESTONE);
             case COPPER -> new RecipeChoice.MaterialChoice(Material.COPPER_INGOT);
             case IRON -> new RecipeChoice.MaterialChoice(Material.IRON_INGOT);
@@ -99,13 +114,12 @@ public class RecipeManager implements Listener {
         ToolManager.ToolTier tier = ToolManager.getTier(result);
         if (tier != null && !player.hasPermission(tier.getPermission())) {
             event.setCancelled(true);
-            player.sendMessage(MineBoost.getInstance()
-                    .getMessage("recipe.no-permission", java.util.Map.of("tier", tier.getLabel())));
+            player.sendMessage(LegacyComponentSerializer.legacySection().deserialize(MineBoost.getInstance().getMessage("recipe.no-permission", java.util.Map.of("tier", tier.getLabel()))));
         }
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        event.getPlayer().discoverRecipes(getAllKeys());
+        event.getPlayer().discoverRecipes(getKeysForPlayer(event.getPlayer()));
     }
 }

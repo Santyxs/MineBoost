@@ -20,10 +20,7 @@ public class GiveCommand {
     public void execute(CommandSender sender, String[] args) {
         MineBoost plugin = MineBoost.getInstance();
 
-        if (!sender.hasPermission("mineboost.give")) {
-            sender.sendMessage(LegacyComponentSerializer.legacySection().deserialize(plugin.getMessage("command.no-permission")));
-            return;
-        }
+        if (plugin.lacksPermission(sender, "mineboost.give")) return;
 
         if (args.length < 2) {
             sender.sendMessage(LegacyComponentSerializer.legacySection().deserialize(plugin.getMessage("command.usage")));

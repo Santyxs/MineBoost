@@ -8,6 +8,7 @@ import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
 import dev.dejvokep.boostedyaml.dvs.versioning.BasicVersioning;
 import mbt.xenova.commands.*;
 import mbt.xenova.managers.*;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Registry;
@@ -180,19 +181,10 @@ public class MineBoost extends JavaPlugin {
         return raw.replace('&', '§');
     }
 
-    public String getRawMessage(String key, Map<String, String> placeholders) {
-        String raw = messages.getString(key);
-        if (raw == null) {
-            raw = fallbackMessages.getString(key, "&cMissing message: " + key);
-        }
-
-        if (placeholders != null) {
-            for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-                raw = raw.replace("%" + entry.getKey() + "%", entry.getValue());
-            }
-        }
-
-        return raw.replace('&', '§');
+    public boolean lacksPermission(CommandSender sender, String permission) {
+        if (sender.hasPermission(permission)) return false;
+        sender.sendMessage(LegacyComponentSerializer.legacySection().deserialize(getMessage("command.no-permission")));
+        return true;
     }
 
     // ---------------------------------------------------------------
@@ -335,8 +327,20 @@ public class MineBoost extends JavaPlugin {
             List<String> completions = new ArrayList<>();
 
             if (args.length == 1) {
+                String prefix = args[0].toLowerCase();
                 for (String name : List.of("give", "info", "reload", "help")) {
-                    if (name.startsWith(args[0].toLowerCase())) completions.add(name);
+                    if (!name.startsWith(prefix)) continue;
+
+                    String permission = switch (name) {
+                        case "give" -> "mineboost.give";
+                        case "info" -> "mineboost.info";
+                        case "reload" -> "mineboost.reload";
+                        case "help" -> "mineboost.help";
+                        default -> null;
+                    };
+                    if (permission != null && !sender.hasPermission(permission)) continue;
+
+                    completions.add(name);
                 }
                 return completions;
             }

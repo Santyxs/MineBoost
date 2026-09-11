@@ -12,13 +12,15 @@ public class HelpCommand {
 
     private static final CommandEntry[] ENTRIES = {
             new CommandEntry("command.help.give.usage", "command.help.give.description", "mineboost.give"),
-            new CommandEntry("command.help.info.usage", "command.help.info.description", null),
+            new CommandEntry("command.help.info.usage", "command.help.info.description", "mineboost.info"),
             new CommandEntry("command.help.reload.usage", "command.help.reload.description", "mineboost.reload"),
-            new CommandEntry("command.help.help.usage", "command.help.help.description", null)
+            new CommandEntry("command.help.help.usage", "command.help.help.description", "mineboost.help")
     };
 
     public void execute(CommandSender sender) {
         MineBoost plugin = MineBoost.getInstance();
+
+        if (plugin.lacksPermission(sender, "mineboost.help")) return;
 
         Component header = LegacyComponentSerializer.legacySection().deserialize(plugin.getMessage("command.help.header"));
         sender.sendMessage(header);

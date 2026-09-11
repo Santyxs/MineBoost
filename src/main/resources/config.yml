@@ -1,22 +1,22 @@
 ###############################################
-#              MINEBOOST SUPPORT               #
+#              MINEBOOST SUPPORT              #
 #---------------------------------------------#
 # Discord:  https://discord.gg/E2hAAa7F6q     #
 ###############################################
 
-version: 1
+version: 2
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━ #
 #       CORE SETTINGS      #
 # ━━━━━━━━━━━━━━━━━━━━━━━━ #
 
-# Prefix for the custom messages
+# Prefix for the custom messages.
 prefix: "&8[&6MineBoost&8] &r"
 
 # Language for messages (en, es, pt)
 language: en
 
-# Enable or disable update checking
+# Enable or disable update checking.
 check-updates: true
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━ #
@@ -44,7 +44,7 @@ cooldowns:
   DIAMOND: 7
   NETHERITE: 10
 
-# Whether the extra blocks broken by the area bonus also drop XP orbs
+# Whether the extra blocks broken by the area bonus also drop XP orbs.
 give-experience: true
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━ #
@@ -72,6 +72,6 @@ particle: BLOCK
 #   Full list: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
 sound: AUTO
 
-# Volume and pitch applied to the sound above.
+# Volume and pitch applied to the sound.
 sound-volume: 1.0
 sound-pitch: 1.0

@@ -1,4 +1,4 @@
-version: 2
+version: 1
 
 command:
   no-permission: "&cYou don't have permission to use this command."
@@ -11,12 +11,11 @@ command:
   target-no-permission: "&c%player% doesn't have permission to hold %tier% tools (%permission%)."
   received: "&aYou received: &r%tool%"
   given-to: "&a%tool% given to %player%"
-  inventory-full-drop: "&eYour inventory was full, the tool was dropped on the ground."
   help:
     header: "&6&lMineBoost &7- Commands"
     give:
       usage: "/mineboost give <pickaxe|shovel|axe> <wood|stone|copper|iron|gold|diamond|netherite> [player]"
-      description: "Gives a tool."
+      description: "Gives an tool."
     reload:
       usage: "/mineboost reload"
       description: "Reloads config and the language files."
